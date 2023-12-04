@@ -7,6 +7,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green""".strip().split(
 )
 
 test_result = 8
+test_result_2 = 2286
 
 
 class RevealedSet:
@@ -74,6 +75,21 @@ class Game:
                 return False
         return True
 
+    def minimum_possible(self):
+        self.minimum_red = max(
+            [revealed_set.red for revealed_set in self.revealed_sets]
+        )
+        self.minimum_green = max(
+            [revealed_set.green for revealed_set in self.revealed_sets]
+        )
+        self.minimum_blue = max(
+            [revealed_set.blue for revealed_set in self.revealed_sets]
+        )
+        return self.minimum_red, self.minimum_green, self.minimum_blue
+
+    def power_of_minimum(self):
+        return self.minimum_red * self.minimum_green * self.minimum_blue
+
 
 def parse_game(games_input):
     games = []
@@ -114,9 +130,23 @@ def sum_of_possible_IDs(games, red, green, blue):
 test_games = parse_game(test_data)
 assert sum_of_possible_IDs(test_games, 12, 13, 14) == test_result
 
+
+def sum_of_powers(games):
+    sum = 0
+    for game in games:
+        game.minimum_possible()
+        sum += game.power_of_minimum()
+    return sum
+
+
+assert sum_of_powers(test_games) == test_result_2
+
 with open("../input_data/02_Cube_Conundrum.txt", "r", encoding="utf-8") as file:
     input = file.read().strip().split("\n")
 
 input_games = parse_game(input)
 answer_1 = sum_of_possible_IDs(input_games, 12, 13, 14)
 print(answer_1)
+
+answer_2 = sum_of_powers(input_games)
+print(answer_2)
