@@ -75,6 +75,9 @@ class Schematic:
             lines = set(pos[0] for pos in positions)
             for line in lines:
                 line_positions = [pos for pos in positions if pos[0] == line]
+                if len(line_positions) > 3:
+                    print(line_positions)
+                # repeats on same line need to be dealt with
                 if any(position in self.adjacent for position in line_positions):
                     self.part_numbers.append(number)
         return self.part_numbers
