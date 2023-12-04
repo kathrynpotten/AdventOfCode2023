@@ -21,8 +21,9 @@ class Schematic:
         self.scheme = re.sub(r"[^a-zA-Z0-9 \n\.]", "*", input).splitlines()
         self.symbols = []
         self.adjacent = []
-        self.numbers = {}
+        self.numbers_dict = {}
         self.part_numbers = []
+        self.numbers = []
 
     def __repr__(self):
         return repr(self.input)
@@ -61,16 +62,21 @@ class Schematic:
             for pos in digits:
                 column_indices = [x for x in range(pos.span()[0], pos.span()[1])]
                 for column_index in column_indices:
-                    self.numbers[(row_index, column_index)] = int(pos.group())
+                    self.numbers_dict[(row_index, column_index)] = int(pos.group())
+                    self.numbers.append(int(pos.group()))
+        self.numbers = set(self.numbers)
 
     def adjacent_numbers(self):
         self.position_of_symbols()
         self.adjacency()
         self.position_of_numbers()
-        for position in self.adjacent:
-            if position in self.numbers:
-                print(position)
-                self.part_numbers.append(self.numbers[position])
+        for number in self.numbers:
+            positions = [pos for pos, num in self.numbers_dict.items() if num == number]
+            lines = set(pos[0] for pos in positions)
+            for line in lines:
+                line_positions = [pos for pos in positions if pos[0] == line]
+                if any(position in self.adjacent for position in line_positions):
+                    self.part_numbers.append(number)
         return self.part_numbers
 
     def sum_engine_parts(self):
@@ -79,15 +85,17 @@ class Schematic:
 
 test_schematic = Schematic(test_data)
 test_schematic.adjacent_numbers()
-print(test_schematic.part_numbers)
 
-# assert test_schematic.sum_engine_parts() == test_result
+assert test_schematic.sum_engine_parts() == test_result
 
 
 with open("../input_data/03_Gear_Ratios.txt", "r", encoding="utf-8") as file:
     input = file.read().strip()
 
-# answer_schematic = Schematic(input)
-# answer_schematic.adjacent_numbers()
-# answer_1 = answer_schematic.sum_engine_parts()
-# print(answer_1)
+answer_schematic = Schematic(input)
+answer_schematic.adjacent_numbers()
+answer_1 = answer_schematic.sum_engine_parts()
+print(answer_1)
+
+
+# 532816 too low
