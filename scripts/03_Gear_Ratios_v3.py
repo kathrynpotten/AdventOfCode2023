@@ -22,7 +22,6 @@ class Schematic:
         self.symbols = []
         self.gears = []
         self.adjacent = []
-        self.adjacent_gears = {}
 
     def __repr__(self):
         return repr(self.input)
@@ -60,7 +59,6 @@ class Schematic:
         sum = 0
         for row_index, line in enumerate(self.scheme):
             digits = re.finditer(r"\d+", line)
-            column_indices = []
             for pos in digits:
                 column_indices = [x for x in range(pos.span()[0], pos.span()[1])]
                 if any(
