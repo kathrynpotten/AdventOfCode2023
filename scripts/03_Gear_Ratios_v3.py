@@ -1,5 +1,5 @@
 import re
-from collections import Counter
+import numpy as np
 
 
 test_data = """467..114..
@@ -14,6 +14,7 @@ test_data = """467..114..
 .664.598.."""
 
 test_result = 4361
+test_result_2 = 467835
 
 
 class Schematic:
@@ -21,7 +22,9 @@ class Schematic:
         self.input = input
         self.scheme = re.sub(r"[^a-zA-Z0-9 \n\.]", "*", input).splitlines()
         self.symbols = []
+        self.gears = []
         self.adjacent = []
+        self.adjacent_gears = {}
 
     def __repr__(self):
         return repr(self.input)
@@ -34,7 +37,7 @@ class Schematic:
             symbols_positions = re.finditer(r"\*", line)
             self.symbols.extend([(index, pos.span()[0]) for pos in symbols_positions])
 
-    def adjacency(self):
+    def adjacency(self, gears=False):
         adjacency_conditions = [
             (-1, 0),
             (1, 0),
@@ -45,13 +48,21 @@ class Schematic:
             (1, 1),
             (1, -1),
         ]
-        for symbol in self.symbols:
-            adjacenct_positions = [
-                tuple(x + y for x, y in zip(symbol, condition))
-                for condition in adjacency_conditions
-            ]
-            self.adjacent.extend(adjacenct_positions)
-        self.adjacent.sort()
+        if gears:
+            for gear in self.gears:
+                adjacenct_positions = [
+                    tuple(x + y for x, y in zip(gear, condition))
+                    for condition in adjacency_conditions
+                ]
+                self.adjacent_gears[gear] = sorted(adjacenct_positions)
+        else:
+            for symbol in self.symbols:
+                adjacenct_positions = [
+                    tuple(x + y for x, y in zip(symbol, condition))
+                    for condition in adjacency_conditions
+                ]
+                self.adjacent.extend(adjacenct_positions)
+            self.adjacent.sort()
 
     def sum_engine_parts(self):
         self.position_of_symbols()
@@ -69,14 +80,50 @@ class Schematic:
                     sum += int(pos.group())
         return sum
 
+    def position_of_potential_gears(self):
+        for index, line in enumerate(self.input.splitlines()):
+            gears_positions = re.finditer(r"\*", line)
+            self.gears.extend([(index, pos.span()[0]) for pos in gears_positions])
+
+    def sum_of_gear_ratios(self):
+        self.position_of_potential_gears()
+        self.adjacency(gears=True)
+        sum = 0
+        for gear in self.gears:
+            gear_adjacent = {}
+            for x, y in self.adjacent_gears[gear]:
+                if self.scheme[x][y].isdigit():
+                    digits = re.finditer(r"\d+", self.scheme[x])
+                    for digit in digits:
+                        column_indices = [
+                            col for col in range(digit.span()[0], digit.span()[1])
+                        ]
+                        if any(col_index == y for col_index in column_indices):
+                            gear_adjacent[x] = int(digit.group())
+            if len(gear_adjacent) == 2:
+                prod = 1
+                for item in gear_adjacent.values():
+                    prod *= item
+                sum += prod
+        return sum
+
 
 test_schematic = Schematic(test_data)
 assert test_schematic.sum_engine_parts() == test_result
+assert test_schematic.sum_of_gear_ratios() == test_result_2
 
 
 with open("../input_data/03_Gear_Ratios.txt", "r", encoding="utf-8") as file:
     input = file.read().strip()
 
+
 answer_schematic = Schematic(input)
 answer_1 = answer_schematic.sum_engine_parts()
 print(answer_1)
+
+
+answer_2 = answer_schematic.sum_of_gear_ratios()
+print(answer_2)
+
+
+# 72030072
