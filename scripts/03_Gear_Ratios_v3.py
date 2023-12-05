@@ -90,7 +90,7 @@ class Schematic:
         self.adjacency(gears=True)
         sum = 0
         for gear in self.gears:
-            gear_adjacent = set()
+            gear_adjacent = defaultdict(set)
             for x, y in self.adjacent_gears[gear]:
                 if self.scheme[x][y].isdigit():
                     digits = re.finditer(r"\d+", self.scheme[x])
@@ -99,10 +99,13 @@ class Schematic:
                             x for x in range(digit.span()[0], digit.span()[1])
                         ]
                         if any(col_index == y for col_index in column_indices):
-                            gear_adjacent.add(int(digit.group()))
-            if len(gear_adjacent) == 2:
+                            gear_adjacent[x].add(int(digit.group()))
+            gear_adjacent_list = []
+            for item in gear_adjacent.values():
+                gear_adjacent_list.extend([val for val in item])
+            if len(gear_adjacent_list) == 2:
                 prod = 1
-                for item in gear_adjacent:
+                for item in gear_adjacent_list:
                     prod *= item
                 sum += prod
         return sum
@@ -124,30 +127,3 @@ print(answer_1)
 
 answer_2 = answer_schematic.sum_of_gear_ratios()
 print(answer_2)
-
-
-# 79552824
-# 72030072
-
-"""
-with open("03_dict_text.txt", "r", encoding="utf-8") as file:
-    input_dict = file.read().strip().splitlines()
-with open("03_set_text.txt", "r", encoding="utf-8") as file:
-    input_set = file.read().strip().splitlines()
-
-for i in range(len(input_dict)):
-    values = input_dict[i].split(",")
-    new_line = []
-    for value in values:
-        new_val = value.split(": ")[-1].replace("}", "")
-        new_line.append(int(new_val))
-    values_set = input_set[i].split(", ")
-    new_line_set = []
-    for value in values_set:
-        new_val = value.replace("}", "").replace("{", "")
-        new_line_set.append(int(new_val))
-    if sorted(new_line) == sorted(new_line_set):
-        print("Ok")
-    else:
-        print(new_line, new_line_set)
-"""
