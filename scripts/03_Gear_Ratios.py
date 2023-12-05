@@ -76,9 +76,20 @@ class Schematic:
             for line in lines:
                 line_positions = [pos for pos in positions if pos[0] == line]
                 if len(line_positions) > 3:
-                    print(line_positions)
-                # repeats on same line need to be dealt with
-                if any(position in self.adjacent for position in line_positions):
+                    repeat_1 = [line_positions[0]]
+                    for i in range(len(line_positions) - 1):
+                        print(line_positions[i + 1][1])
+                        if line_positions[i + 1][1] != line_positions[i][1] + 1:
+                            break
+                        else:
+                            repeat_1.append(line_positions[i + 1])
+                    repeat_2 = [pos for pos in line_positions if pos not in repeat_1]
+                    print(repeat_1, repeat_2)
+                    if any(position in self.adjacent for position in repeat_1):
+                        self.part_numbers.append(number)
+                    if any(position in self.adjacent for position in repeat_2):
+                        self.part_numbers.append(number)
+                elif any(position in self.adjacent for position in line_positions):
                     self.part_numbers.append(number)
         return self.part_numbers
 
