@@ -89,17 +89,22 @@ class Schematic:
         self.position_of_potential_gears()
         self.adjacency(gears=True)
         sum = 0
-        for gear in self.gears:
-            gear_adjacent = defaultdict(set)
-            for x, y in self.adjacent_gears[gear]:
-                if self.scheme[x][y].isdigit():
-                    digits = re.finditer(r"\d+", self.scheme[x])
-                    for digit in digits:
-                        column_indices = [
-                            x for x in range(digit.span()[0], digit.span()[1])
-                        ]
-                        if any(col_index == y for col_index in column_indices):
-                            gear_adjacent[x].add(int(digit.group()))
+        for row, col in self.gears:
+            gear_adjacent = {row - 1: [], row: [], row + 1: []}
+            for i in range(-1, 2):
+                digits = re.finditer(r"\d+", self.scheme[row + i][col - 3 : col + 4])
+                for digit in digits:
+                    column_indices = [
+                        x
+                        for x in range(
+                            digit.span()[0] - 3 + col, digit.span()[1] - 3 + col
+                        )
+                    ]
+                    if any(
+                        col_index in [col - 1, col, col + 1]
+                        for col_index in column_indices
+                    ):
+                        gear_adjacent[row + i].append(int(digit.group()))
             gear_adjacent_list = []
             for item in gear_adjacent.values():
                 gear_adjacent_list.extend([val for val in item])
