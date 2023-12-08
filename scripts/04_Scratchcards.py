@@ -10,6 +10,7 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11""".strip().split(
 )
 
 test_result = 13
+test_result_2 = 30
 
 
 def parse_card(card):
@@ -35,7 +36,7 @@ def calculate_points(num_matching, num_winning):
     return points_dict[num_matching]
 
 
-def scratchcards_total(cards):
+def scratchcards_points_total(cards):
     points = 0
     for card in cards:
         winning_numbers, my_numbers = parse_card(card)
@@ -44,11 +45,40 @@ def scratchcards_total(cards):
     return points
 
 
-assert scratchcards_total(test_data) == test_result
+assert scratchcards_points_total(test_data) == test_result
 
 
 with open("../input_data/04_Scratchcards.txt", "r", encoding="utf-8") as file:
     input = file.read().strip().split("\n")
 
-answer_1 = scratchcards_total(input)
+answer_1 = scratchcards_points_total(input)
 print(answer_1)
+
+
+""" Part 2 """
+
+
+def scratchcards_num_total(cards):
+    for card in cards:
+        card_number = int(card.split(":")[0].replace(" ", "").split("Card")[1])
+
+        winning_numbers, my_numbers = parse_card(card)
+        num_matching = find_winning_numbers(winning_numbers, my_numbers)
+        cards_to_copy = [card_number + x for x in range(1, num_matching + 1)]
+        cards.extend([cards[copy_num - 1] for copy_num in cards_to_copy])
+    return len(cards), cards
+
+
+# totals = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+# for card in scratchcards_num_total(test_data)[1]:
+#    for i in range(1, 7):
+#        if card[5] == str(i):
+#            totals[i] += 1
+
+
+# assert totals == {1: 1, 2: 2, 3: 4, 4: 8, 5: 14, 6: 1}
+
+assert scratchcards_num_total(test_data)[0] == test_result_2
+
+answer_2 = scratchcards_num_total(input)
+print(answer_2)
