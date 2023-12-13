@@ -171,7 +171,7 @@ def find_lowest_location(seeds, maps):
     lowest_loc = 999999999999
     for seed_start, seed_end in seeds.items():
         for num, seed in enumerate(range(seed_start, seed_end)):
-            if num % 1000 == 0:
+            if num % 1000000 == 0:
                 print(f"Iteration {num}")
             source = seed
             for map in maps:
@@ -180,7 +180,46 @@ def find_lowest_location(seeds, maps):
     return lowest_loc
 
 
-maps = parse_data(input)
-seeds = seed_list(input[0])
-answer_2 = find_lowest_location(seeds, maps)
-print(answer_2)
+# maps = parse_data(input)
+# seeds = seed_list(input[0])
+# answer_2 = find_lowest_location(seeds, maps)
+# print(answer_2)
+
+# work backwards - what is lowest possible location number? doe sit correspond to a seed?
+
+
+def min_location_possible(loc_map):
+    min_destination = 999999999999
+    for line in loc_map:
+        line_min_destination = int(line.split(" ")[0])
+        if line_min_destination < min_destination:
+            source = int(line.split(" ")[1])
+            min_destination = line_min_destination
+    return source
+
+
+def map_converter_reverse(map, destination):
+    source = False
+    for line in map:
+        destination_start = int(line.split(" ")[0])
+        destination_length = int(line.split(" ")[2])
+        destination_end = destination_start + destination_length
+        if destination in range(destination_start, destination_end):
+            destination_pos = destination - destination_start
+            source = int(line.split(" ")[1]) + destination_pos
+        if not source:
+            source = destination
+    return source
+
+
+def seed_for_lowest_loc(maps):
+    source = min_location_possible(maps[-1])
+    for map in maps[::-1][1:]:
+        source = map_converter_reverse(map, source)
+    return source
+
+
+test_maps = parse_data(test_data)
+print(seed_for_lowest_loc(test_maps))
+
+# iterate over possible locations until find a corresponding seed
