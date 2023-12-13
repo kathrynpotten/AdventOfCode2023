@@ -36,6 +36,8 @@ humidity-to-location map:
 
 test_result = 35
 
+test_result_2 = 46
+
 
 def parse_data(input):
     maps_list = [map.split("map:\n")[-1] for map in input]
@@ -108,3 +110,77 @@ with open("../input_data/05_Seed_Fertilizer.txt", "r", encoding="utf-8") as file
 
 answer_1 = lowest_location_of_seeds(input)
 print(answer_1)
+
+
+""" Part 2 """
+
+
+def intial_seed_numbers_updated(seeds):
+    input_list = seeds.split("seeds: ")[-1]
+    seed_list = [int(seed) for seed in input_list.split(" ")]
+    seeds = []
+    for i in range(0, int(len(seed_list) / 2) + 1, 2):
+        seed_start = seed_list[i]
+        seed_length = seed_list[i + 1]
+        seed_end = seed_start + seed_length
+        seeds.extend([seed for seed in range(seed_start, seed_end)])
+    return seeds
+
+
+assert intial_seed_numbers_updated(test_data[0]) == [
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+]
+
+
+def seed_list(seeds):
+    input_list = seeds.split("seeds: ")[-1]
+    seed_list = [int(seed) for seed in input_list.split(" ")]
+    return seed_list
+
+
+def find_lowest_location(seeds, maps):
+    lowest_loc = 999999999999
+    for i in range(0, int(len(seeds) / 2) + 1, 2):
+        seed_start = seeds[i]
+        seed_length = seeds[i + 1]
+        seed_end = seed_start + seed_length
+        for num, seed in enumerate(range(seed_start, seed_end)):
+            if num % 1000 == 0:
+                print(f"Iteration {num}")
+            source = seed
+            for map in maps:
+                source = map_converter(map, source)
+            lowest_loc = min(source, lowest_loc)
+    return lowest_loc
+
+
+maps = parse_data(input)
+seeds = seed_list(input[0])
+answer_2 = find_lowest_location(seeds, maps)
+print(answer_2)
