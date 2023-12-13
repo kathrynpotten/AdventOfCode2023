@@ -161,15 +161,15 @@ assert intial_seed_numbers_updated(test_data[0]) == [
 def seed_list(seeds):
     input_list = seeds.split("seeds: ")[-1]
     seed_list = [int(seed) for seed in input_list.split(" ")]
-    return seed_list
+    return {
+        seed_list[i]: seed_list[i] + seed_list[i + 1]
+        for i in range(0, int(len(seed_list) / 2) + 1, 2)
+    }
 
 
 def find_lowest_location(seeds, maps):
     lowest_loc = 999999999999
-    for i in range(0, int(len(seeds) / 2) + 1, 2):
-        seed_start = seeds[i]
-        seed_length = seeds[i + 1]
-        seed_end = seed_start + seed_length
+    for seed_start, seed_end in seeds.items():
         for num, seed in enumerate(range(seed_start, seed_end)):
             if num % 1000 == 0:
                 print(f"Iteration {num}")
