@@ -58,15 +58,40 @@ print(answer_1)
 """ Part 2 """
 
 
+def add_copied_cards(copied_cards, won_cards):
+    new_copied_cards = {x: 0 for x in range(1, len(copied_cards.keys()) + 1)}
+    for card, copies in copied_cards.items():
+        cards_to_copy = won_cards[card] * copies
+        for copy_num in cards_to_copy:
+            new_copied_cards[copy_num] += 1
+    return new_copied_cards
+
+
 def scratchcards_num_total(cards):
+    total_cards = {x: 1 for x in range(1, len(cards) + 1)}
+    copied_cards = {x: 0 for x in range(1, len(cards) + 1)}
+    won_cards = {x: [] for x in range(1, len(cards) + 1)}
     for card in cards:
         card_number = int(card.split(":")[0].replace(" ", "").split("Card")[1])
-
         winning_numbers, my_numbers = parse_card(card)
         num_matching = find_winning_numbers(winning_numbers, my_numbers)
         cards_to_copy = [card_number + x for x in range(1, num_matching + 1)]
-        cards.extend([cards[copy_num - 1] for copy_num in cards_to_copy])
-    return len(cards), cards
+        won_cards[card_number].extend(cards_to_copy)
+        for copy_num in cards_to_copy:
+            copied_cards[copy_num] += 1
+
+    total_cards = {
+        k: total_cards.get(k, 0) + copied_cards.get(k, 0)
+        for k in set(total_cards) & set(copied_cards)
+    }
+    while sum(copied_cards.values()) > 0:
+        copied_cards = add_copied_cards(copied_cards, won_cards)
+        total_cards = {
+            k: total_cards.get(k, 0) + copied_cards.get(k, 0)
+            for k in set(total_cards) & set(copied_cards)
+        }
+
+    return sum(total_cards.values()), total_cards
 
 
 # totals = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
@@ -75,10 +100,9 @@ def scratchcards_num_total(cards):
 #        if card[5] == str(i):
 #            totals[i] += 1
 
-
-# assert totals == {1: 1, 2: 2, 3: 4, 4: 8, 5: 14, 6: 1}
+assert scratchcards_num_total(test_data)[1] == {1: 1, 2: 2, 3: 4, 4: 8, 5: 14, 6: 1}
 
 assert scratchcards_num_total(test_data)[0] == test_result_2
 
-answer_2 = scratchcards_num_total(input)
+answer_2 = scratchcards_num_total(input)[0]
 print(answer_2)
