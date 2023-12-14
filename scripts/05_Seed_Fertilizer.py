@@ -165,7 +165,7 @@ def seed_list(seeds):
     seed_list = [int(seed) for seed in input_list.split(" ")]
     return {
         seed_list[i]: seed_list[i] + seed_list[i + 1]
-        for i in range(0, int(len(seed_list) / 2) + 1, 2)
+        for i in range(0, len(seed_list), 2)
     }
 
 
@@ -186,6 +186,9 @@ def find_lowest_location(seeds, maps):
 # seeds = seed_list(input[0])
 # answer_2 = find_lowest_location(seeds, maps)
 # print(answer_2)
+
+
+""" attempt 2 """
 
 # work backwards - what is lowest possible location number? does it correspond to a seed?
 
@@ -282,15 +285,84 @@ def find_lowest_location_updated(input):
 # print(answer_2)
 
 
-# find 1 to 1 mapping with smaller numbers
+""" attempt 3 """
 
-answer_seeds = seed_list(input[0])
-seeds_lcm = []
-for seed_start, seed_end in answer_seeds.items():
-    print(seed_start, seed_end)
-    lcm = math.lcm(*(range(seed_start, seed_end)))
-    print(lcm)
-    seeds_lcm.append(math.lcm(*(range(seed_start, seed_end))))
-full_lcm = math.lcm(seeds_lcm)
 
-print(full_lcm)
+def map_converter_range(map, source):
+    destinations = []
+    remaining = source
+    for line in map:
+        map_start = int(line.split(" ")[1])
+        map_length = int(line.split(" ")[2])
+        map_end = map_start + map_length
+        # these lines need removing as otherwise we lose all the time saving
+        map_range = set([i for i in range(map_start, map_end)])
+        input_range = set([i for i in range(source[0], source[0] + source[1])])
+        if input_range.intersection(map_range):
+            min_overlap = min(input_range.intersection(map_range))
+            len_overlap = len(input_range.intersection(map_range))
+            offset = int(line.split(" ")[0]) - map_start
+            destinations.append((min_overlap + offset, len_overlap))
+            # needs to be updated to check for alternative types of hole
+            if input_range.intersection(map_range) != input_range:
+                remaining = min(input_range - map_range), len(input_range - map_range)
+    if sum([num_range[1] for num_range in destinations]) != source[1]:
+        destinations.append(remaining)
+
+    return destinations
+
+
+assert map_converter_range(soil_map, (79, 14)) == [(81, 14)]
+assert map_converter_range(soil_map, (45, 11)) == [(52, 6), (45, 5)]
+
+
+def seed_ranges(seeds):
+    input_list = seeds.split("seeds: ")[-1]
+    seed_list = [int(seed) for seed in input_list.split(" ")]
+    return [(seed_list[i], seed_list[i + 1]) for i in range(0, len(seed_list), 2)]
+
+
+assert seed_ranges(test_data[0]) == [(79, 14), (55, 13)]
+
+
+def find_location_numbers_range(seeds, maps):
+    locations = []
+    remains = {}
+    for seed_range in seeds:
+        source = seed_range
+        for num, map in enumerate(maps):
+            source = map_converter_range(map, source)
+            print(source)
+            if len(source) == 1:
+                source = source[0]
+            else:
+                old_source = source
+                source = old_source[0]
+                remains[old_source[1]] = num
+        locations.append(source[0])
+    print(seed_range, locations, remains)
+    while remains:
+        new_remains = remains.copy()
+        for seed_range, map_num in remains.items():
+            del new_remains[seed_range]
+            remaining_loc, add_remains = find_location_numbers_range(
+                [seed_range], maps[map_num:]
+            )
+            locations.extend(remaining_loc)
+            new_remains.update(add_remains)
+        remains = new_remains
+    return locations, remains
+
+
+def lowest_location_of_seed_ranges(input):
+    maps = parse_data(input)
+    seeds = seed_ranges(input[0])
+    print(seeds)
+    locations = find_location_numbers_range(seeds, maps)[0]
+    return lowest_location(locations)
+
+
+# assert lowest_location_of_seed_ranges(test_data) == test_result_2
+
+answer_2 = lowest_location_of_seed_ranges(input)
+print(answer_2)
