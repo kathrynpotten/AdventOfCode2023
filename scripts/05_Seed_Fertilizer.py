@@ -1,3 +1,5 @@
+import math
+
 test_data = """seeds: 79 14 55 13
 
 seed-to-soil map:
@@ -185,7 +187,7 @@ def find_lowest_location(seeds, maps):
 # answer_2 = find_lowest_location(seeds, maps)
 # print(answer_2)
 
-# work backwards - what is lowest possible location number? doe sit correspond to a seed?
+# work backwards - what is lowest possible location number? does it correspond to a seed?
 
 
 def min_location_possible(loc_map):
@@ -195,7 +197,8 @@ def min_location_possible(loc_map):
         if line_min_destination < min_destination:
             source = int(line.split(" ")[1])
             min_destination = line_min_destination
-    return source
+            min_line = line
+    return source, min_line
 
 
 def map_converter_reverse(map, destination):
@@ -212,14 +215,82 @@ def map_converter_reverse(map, destination):
     return source
 
 
-def seed_for_lowest_loc(maps):
-    source = min_location_possible(maps[-1])
+def seed_for_lowest_loc(maps, source):
     for map in maps[::-1][1:]:
         source = map_converter_reverse(map, source)
     return source
 
 
 test_maps = parse_data(test_data)
-print(seed_for_lowest_loc(test_maps))
+test_destination = min_location_possible(test_maps[-1])[0]
+test_source = seed_for_lowest_loc(test_maps, test_destination)
+test_seeds = seed_list(test_data[0])
+
+
+def correpsondence_to_seed(seed, seeds):
+    for seed_start, seed_end in seeds.items():
+        if seed in range(seed_start, seed_end):
+            return True
+    return False
+
+
+assert correpsondence_to_seed(test_source, test_seeds) == True
+
 
 # iterate over possible locations until find a corresponding seed
+
+
+def location_iteration(seeds, maps):
+    loc_map = maps[-1]
+    found = False
+    min_line = min_location_possible(loc_map)[1]
+    min_destination = int(min_line.split(" ")[0])
+    if min_destination > 0:
+        for location in range(0, min_destination):
+            if location % 1000 == 0:
+                print(f"{location}")
+            seed = seed_for_lowest_loc(maps, location)
+            if correpsondence_to_seed(seed, seeds):
+                found_loc = location
+                found = True
+                break
+    while not found:
+        min_line = min_location_possible(loc_map)[1]
+        min_destination = int(min_line.split(" ")[0])
+        max_line_destination = int(min_line.split(" ")[2]) + min_destination
+        loc_map = loc_map.remove(min_line)
+        for location in range(min_destination, max_line_destination):
+            if location % 1000 == 0:
+                print(f"{location}")
+            seed = seed_for_lowest_loc(maps, location)
+            if correpsondence_to_seed(seed, seeds):
+                found_loc = location
+                found = True
+                break
+    return found_loc
+
+
+def find_lowest_location_updated(input):
+    maps = parse_data(input)
+    seeds = seed_list(input[0])
+    return location_iteration(seeds, maps)
+
+
+# assert find_lowest_location_updated(test_data) == test_result_2
+
+# answer_2 = find_lowest_location_updated(input)
+# print(answer_2)
+
+
+# find 1 to 1 mapping with smaller numbers
+
+answer_seeds = seed_list(input[0])
+seeds_lcm = []
+for seed_start, seed_end in answer_seeds.items():
+    print(seed_start, seed_end)
+    lcm = math.lcm(*(range(seed_start, seed_end)))
+    print(lcm)
+    seeds_lcm.append(math.lcm(*(range(seed_start, seed_end))))
+full_lcm = math.lcm(seeds_lcm)
+
+print(full_lcm)
