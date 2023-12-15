@@ -1,3 +1,5 @@
+import math
+
 test_data = """RL
 
 AAA = (BBB, CCC)
@@ -100,24 +102,28 @@ test_result_3 = 6
 
 def walk_ghost(instructions, nodes):
     current_nodes = [node for node in nodes.keys() if node[-1] == "A"]
-    goal = [node for node in nodes.keys() if node[-1] == "Z"]
-    steps = 0
+    steps_list = []
 
-    def instruction_loop(current_nodes, goal, steps):
-        for instruction in instructions:
-            steps += 1
-            if instruction == "L":
-                current_nodes = [nodes[node][0] for node in current_nodes]
-            elif instruction == "R":
-                current_nodes = [nodes[node][1] for node in current_nodes]
-            if set(current_nodes) == set(goal):
-                break
-        return current_nodes, steps
+    for current_node in current_nodes:
+        steps = 0
 
-    while current_nodes != goal:
-        current_nodes, steps = instruction_loop(current_nodes, goal, steps)
+        def instruction_loop(current_node, steps):
+            for instruction in instructions:
+                steps += 1
+                if instruction == "L":
+                    current_node = nodes[current_node][0]
+                elif instruction == "R":
+                    current_node = nodes[current_node][1]
+                if current_node[-1] == "Z":
+                    break
+            return current_node, steps
 
-    return steps
+        while current_node[-1] != "Z":
+            current_node, steps = instruction_loop(current_node, steps)
+
+        steps_list.append(steps)
+
+    return math.lcm(*(steps_list))
 
 
 test_instr_3, test_nodes_3 = parse_map(test_data_3)
