@@ -292,28 +292,67 @@ def map_converter_range(map, source):
     destinations = []
     remaining = source
     for line in map:
+        # print(destinations)
+        # print(f"New line, remains {remaining}")
         map_start = int(line.split(" ")[1])
         map_length = int(line.split(" ")[2])
-        map_end = map_start + map_length
-        # these lines need removing as otherwise we lose all the time saving
-        map_range = set([i for i in range(map_start, map_end)])
-        input_range = set([i for i in range(source[0], source[0] + source[1])])
-        if input_range.intersection(map_range):
-            min_overlap = min(input_range.intersection(map_range))
-            len_overlap = len(input_range.intersection(map_range))
-            offset = int(line.split(" ")[0]) - map_start
-            destinations.append((min_overlap + offset, len_overlap))
-            # needs to be updated to check for alternative types of hole
-            if input_range.intersection(map_range) != input_range:
-                remaining = min(input_range - map_range), len(input_range - map_range)
+        map_end = map_start + map_length - 1
+        offset = int(line.split(" ")[0]) - map_start
+        # print(map_start, map_end)
+        # start of seed range maps
+        if map_start <= source[0] <= map_end:
+            # print("start overlaps")
+            # full overlap
+            if source[0] + source[1] - 1 <= map_end:
+                #    print("full overlap")
+                destinations.append((source[0] + offset, source[1]))
+            # partial overlap
+            else:
+                #    print("partial overlap")
+                len_overlap = map_end - source[0] + 1
+                destinations.append((source[0] + offset, len_overlap))
+                remaining = (map_end + 1, source[0] + source[1] - map_end)
+        # end of seed range maps but start does not
+        elif map_start <= source[0] + source[1] - 1 <= map_end:
+            # print("end overlaps")
+            len_overlap = source[0] + source[1] - map_start
+            destinations.append((map_start + offset, len_overlap))
+            remaining = (source[0], map_start - source[0])
+        # part of seed range maps but neither start nor end does
+        elif source[0] < map_start and source[0] + source[1] > map_end:
+            # print("central overlap")
+            destinations.append((map_start + offset, map_length))
+            remaining = [
+                (source[0], map_start - source[0]),
+                (map_end + 1, source[0] + source[1] - map_end),
+            ]
     if sum([num_range[1] for num_range in destinations]) != source[1]:
         destinations.append(remaining)
-
     return destinations
 
 
-assert map_converter_range(soil_map, (79, 14)) == [(81, 14)]
-assert map_converter_range(soil_map, (45, 11)) == [(52, 6), (45, 5)]
+# assert map_converter_range(soil_map, (79, 14)) == [(81, 14)]
+# assert map_converter_range(soil_map, (45, 11)) == [(52, 6), (45, 5)]
+# assert map_converter_range(soil_map, (55, 13)) == [(57, 13)]
+
+fertilizer_map = ["0 15 37", "37 52 2", "39 0 15"]
+
+water_map = ["49 53 8", "0 11 42", "42 0 7", "57 7 4"]
+
+light_map = ["88 18 7", "18 25 70"]
+
+temperature_map = ["45 77 23", "81 45 19", "68 64 13"]
+
+humidity_map = ["0 69 1", "1 0 69"]
+
+location_map = ["60 56 37", "56 93 4"]
+
+assert map_converter_range(fertilizer_map, (81, 14)) == [(81, 14)]
+assert map_converter_range(water_map, (81, 14)) == [(81, 14)]
+assert map_converter_range(light_map, (81, 14)) == [(74, 14)]
+assert map_converter_range(temperature_map, (74, 14)) == [(45, 11), (78, 3)]
+assert map_converter_range(humidity_map, (45, 11)) == [(46, 11)]
+assert map_converter_range(location_map, (46, 11)) == [(60, 1), (46, 10)]
 
 
 def seed_ranges(seeds):
@@ -332,7 +371,6 @@ def find_location_numbers_range(seeds, maps):
         source = seed_range
         for num, map in enumerate(maps):
             source = map_converter_range(map, source)
-            print(source)
             if len(source) == 1:
                 source = source[0]
             else:
@@ -340,13 +378,12 @@ def find_location_numbers_range(seeds, maps):
                 source = old_source[0]
                 remains[old_source[1]] = num
         locations.append(source[0])
-    print(seed_range, locations, remains)
     while remains:
         new_remains = remains.copy()
         for seed_range, map_num in remains.items():
             del new_remains[seed_range]
             remaining_loc, add_remains = find_location_numbers_range(
-                [seed_range], maps[map_num:]
+                [seed_range], maps[map_num + 1 :]
             )
             locations.extend(remaining_loc)
             new_remains.update(add_remains)
@@ -357,12 +394,11 @@ def find_location_numbers_range(seeds, maps):
 def lowest_location_of_seed_ranges(input):
     maps = parse_data(input)
     seeds = seed_ranges(input[0])
-    print(seeds)
     locations = find_location_numbers_range(seeds, maps)[0]
     return lowest_location(locations)
 
 
-# assert lowest_location_of_seed_ranges(test_data) == test_result_2
+assert lowest_location_of_seed_ranges(test_data) == test_result_2
 
 answer_2 = lowest_location_of_seed_ranges(input)
 print(answer_2)
