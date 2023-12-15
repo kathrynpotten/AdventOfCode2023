@@ -78,3 +78,50 @@ with open("../input_data/08_Haunted_Wasteland.txt", "r", encoding="utf-8") as fi
 answer_instr, answer_nodes = parse_map(input_data)
 answer_1 = walk(answer_instr, answer_nodes)
 print(answer_1)
+
+
+""" Part 2 """
+
+test_data_3 = """LR
+
+11A = (11B, XXX)
+11B = (XXX, 11Z)
+11Z = (11B, XXX)
+22A = (22B, XXX)
+22B = (22C, 22C)
+22C = (22Z, 22Z)
+22Z = (22B, 22B)
+XXX = (XXX, XXX)""".strip().split(
+    "\n\n"
+)
+
+test_result_3 = 6
+
+
+def walk_ghost(instructions, nodes):
+    current_nodes = [node for node in nodes.keys() if node[-1] == "A"]
+    goal = [node for node in nodes.keys() if node[-1] == "Z"]
+    steps = 0
+
+    def instruction_loop(current_nodes, goal, steps):
+        for instruction in instructions:
+            steps += 1
+            if instruction == "L":
+                current_nodes = [nodes[node][0] for node in current_nodes]
+            elif instruction == "R":
+                current_nodes = [nodes[node][1] for node in current_nodes]
+            if set(current_nodes) == set(goal):
+                break
+        return current_nodes, steps
+
+    while current_nodes != goal:
+        current_nodes, steps = instruction_loop(current_nodes, goal, steps)
+
+    return steps
+
+
+test_instr_3, test_nodes_3 = parse_map(test_data_3)
+assert walk_ghost(test_instr_3, test_nodes_3) == test_result_3
+
+answer_2 = walk_ghost(answer_instr, answer_nodes)
+print(answer_2)
