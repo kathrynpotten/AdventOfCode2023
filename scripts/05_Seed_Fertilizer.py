@@ -117,210 +117,31 @@ print(answer_1)
 """ Part 2 """
 
 
-def intial_seed_numbers_updated(seeds):
-    input_list = seeds.split("seeds: ")[-1]
-    seed_list = [int(seed) for seed in input_list.split(" ")]
-    seeds = []
-    for i in range(0, int(len(seed_list) / 2) + 1, 2):
-        seed_start = seed_list[i]
-        seed_length = seed_list[i + 1]
-        seed_end = seed_start + seed_length
-        seeds.extend([seed for seed in range(seed_start, seed_end)])
-    return seeds
-
-
-assert intial_seed_numbers_updated(test_data[0]) == [
-    79,
-    80,
-    81,
-    82,
-    83,
-    84,
-    85,
-    86,
-    87,
-    88,
-    89,
-    90,
-    91,
-    92,
-    55,
-    56,
-    57,
-    58,
-    59,
-    60,
-    61,
-    62,
-    63,
-    64,
-    65,
-    66,
-    67,
-]
-
-
-def seed_list(seeds):
-    input_list = seeds.split("seeds: ")[-1]
-    seed_list = [int(seed) for seed in input_list.split(" ")]
-    return {
-        seed_list[i]: seed_list[i] + seed_list[i + 1]
-        for i in range(0, len(seed_list), 2)
-    }
-
-
-def find_lowest_location(seeds, maps):
-    lowest_loc = 999999999999
-    for seed_start, seed_end in seeds.items():
-        for num, seed in enumerate(range(seed_start, seed_end)):
-            if num % 1000000 == 0:
-                print(f"Iteration {num}")
-            source = seed
-            for map in maps:
-                source = map_converter(map, source)
-            lowest_loc = min(source, lowest_loc)
-    return lowest_loc
-
-
-# maps = parse_data(input)
-# seeds = seed_list(input[0])
-# answer_2 = find_lowest_location(seeds, maps)
-# print(answer_2)
-
-
-""" attempt 2 """
-
-# work backwards - what is lowest possible location number? does it correspond to a seed?
-
-
-def min_location_possible(loc_map):
-    min_destination = 999999999999
-    for line in loc_map:
-        line_min_destination = int(line.split(" ")[0])
-        if line_min_destination < min_destination:
-            source = int(line.split(" ")[1])
-            min_destination = line_min_destination
-            min_line = line
-    return source, min_line
-
-
-def map_converter_reverse(map, destination):
-    source = False
-    for line in map:
-        destination_start = int(line.split(" ")[0])
-        destination_length = int(line.split(" ")[2])
-        destination_end = destination_start + destination_length
-        if destination in range(destination_start, destination_end):
-            destination_pos = destination - destination_start
-            source = int(line.split(" ")[1]) + destination_pos
-        if not source:
-            source = destination
-    return source
-
-
-def seed_for_lowest_loc(maps, source):
-    for map in maps[::-1][1:]:
-        source = map_converter_reverse(map, source)
-    return source
-
-
-test_maps = parse_data(test_data)
-test_destination = min_location_possible(test_maps[-1])[0]
-test_source = seed_for_lowest_loc(test_maps, test_destination)
-test_seeds = seed_list(test_data[0])
-
-
-def correpsondence_to_seed(seed, seeds):
-    for seed_start, seed_end in seeds.items():
-        if seed in range(seed_start, seed_end):
-            return True
-    return False
-
-
-assert correpsondence_to_seed(test_source, test_seeds) == True
-
-
-# iterate over possible locations until find a corresponding seed
-
-
-def location_iteration(seeds, maps):
-    loc_map = maps[-1]
-    found = False
-    min_line = min_location_possible(loc_map)[1]
-    min_destination = int(min_line.split(" ")[0])
-    if min_destination > 0:
-        for location in range(0, min_destination):
-            if location % 1000 == 0:
-                print(f"{location}")
-            seed = seed_for_lowest_loc(maps, location)
-            if correpsondence_to_seed(seed, seeds):
-                found_loc = location
-                found = True
-                break
-    while not found:
-        min_line = min_location_possible(loc_map)[1]
-        min_destination = int(min_line.split(" ")[0])
-        max_line_destination = int(min_line.split(" ")[2]) + min_destination
-        loc_map = loc_map.remove(min_line)
-        for location in range(min_destination, max_line_destination):
-            if location % 1000 == 0:
-                print(f"{location}")
-            seed = seed_for_lowest_loc(maps, location)
-            if correpsondence_to_seed(seed, seeds):
-                found_loc = location
-                found = True
-                break
-    return found_loc
-
-
-def find_lowest_location_updated(input):
-    maps = parse_data(input)
-    seeds = seed_list(input[0])
-    return location_iteration(seeds, maps)
-
-
-# assert find_lowest_location_updated(test_data) == test_result_2
-
-# answer_2 = find_lowest_location_updated(input)
-# print(answer_2)
-
-
-""" attempt 3 """
-
-
 def map_converter_range(map, source):
     destinations = []
     remaining = source
     for line in map:
-        # print(destinations)
-        # print(f"New line, remains {remaining}")
         map_start = int(line.split(" ")[1])
         map_length = int(line.split(" ")[2])
         map_end = map_start + map_length - 1
         offset = int(line.split(" ")[0]) - map_start
-        # print(map_start, map_end)
         # start of seed range maps
         if map_start <= source[0] <= map_end:
-            # print("start overlaps")
             # full overlap
             if source[0] + source[1] - 1 <= map_end:
-                #    print("full overlap")
                 destinations.append((source[0] + offset, source[1]))
             # partial overlap
             else:
-                #    print("partial overlap")
                 len_overlap = map_end - source[0] + 1
                 destinations.append((source[0] + offset, len_overlap))
                 remaining = (map_end + 1, source[0] + source[1] - map_end)
         # end of seed range maps but start does not
         elif map_start <= source[0] + source[1] - 1 <= map_end:
-            # print("end overlaps")
             len_overlap = source[0] + source[1] - map_start
             destinations.append((map_start + offset, len_overlap))
             remaining = (source[0], map_start - source[0])
         # part of seed range maps but neither start nor end does
         elif source[0] < map_start and source[0] + source[1] > map_end:
-            # print("central overlap")
             destinations.append((map_start + offset, map_length))
             remaining = [
                 (source[0], map_start - source[0]),
@@ -331,28 +152,8 @@ def map_converter_range(map, source):
     return destinations
 
 
-# assert map_converter_range(soil_map, (79, 14)) == [(81, 14)]
-# assert map_converter_range(soil_map, (45, 11)) == [(52, 6), (45, 5)]
-# assert map_converter_range(soil_map, (55, 13)) == [(57, 13)]
-
-fertilizer_map = ["0 15 37", "37 52 2", "39 0 15"]
-
-water_map = ["49 53 8", "0 11 42", "42 0 7", "57 7 4"]
-
-light_map = ["88 18 7", "18 25 70"]
-
-temperature_map = ["45 77 23", "81 45 19", "68 64 13"]
-
-humidity_map = ["0 69 1", "1 0 69"]
-
-location_map = ["60 56 37", "56 93 4"]
-
-assert map_converter_range(fertilizer_map, (81, 14)) == [(81, 14)]
-assert map_converter_range(water_map, (81, 14)) == [(81, 14)]
-assert map_converter_range(light_map, (81, 14)) == [(74, 14)]
-assert map_converter_range(temperature_map, (74, 14)) == [(45, 11), (78, 3)]
-assert map_converter_range(humidity_map, (45, 11)) == [(46, 11)]
-assert map_converter_range(location_map, (46, 11)) == [(60, 1), (46, 10)]
+assert map_converter_range(soil_map, (79, 14)) == [(81, 14)]
+assert map_converter_range(soil_map, (45, 11)) == [(52, 6), (45, 5)]
 
 
 def seed_ranges(seeds):
