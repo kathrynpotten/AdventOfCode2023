@@ -5,6 +5,7 @@ Distance:  9  40  200
 )
 
 test_result = 288
+test_result_2 = 71503
 
 
 def range_of_distances(time):
@@ -59,15 +60,31 @@ assert num_winning_distances(test_range_2, 200) == 9
 
 def num_ways_to_beat(race_list):
     product = 1
-    times = race_list[0].split("   ")[2:]
-    records = race_list[1].split("   ")[1:]
+    times = race_list[0].split()[1:]
+    records = race_list[1].split()[1:]
     for time, record in zip(times, records):
-        range = range_of_distances(int(time))
-        product *= num_winning_distances(range, int(record))
+        time_range = [(int(time) - x) * x for x in range(int(int(time) / 2) + 1)]
+        if (int(time) + 1) % 2 == 0:
+            product *= num_winning_distances(time_range, int(record)) * 2
+        else:
+            product *= num_winning_distances(time_range, int(record)) * 2 - 1
     return product
 
 
-# assert num_ways_to_beat(test_data) == test_result
+assert num_ways_to_beat(test_data) == test_result
+
+
+def num_ways_to_beat_single(race):
+    time = "".join(race[0].split()[1:])
+    record = "".join(race[1].split()[1:])
+    time_range = [(int(time) - x) * x for x in range(int(int(time) / 2) + 1)]
+    if (int(time) + 1) % 2 == 0:
+        return num_winning_distances(time_range, int(record)) * 2
+    else:
+        return num_winning_distances(time_range, int(record)) * 2 - 1
+
+
+assert num_ways_to_beat_single(test_data) == test_result_2
 
 
 with open("../input_data/06_Wait_For_It.txt", "r", encoding="utf-8") as file:
@@ -76,3 +93,7 @@ with open("../input_data/06_Wait_For_It.txt", "r", encoding="utf-8") as file:
 
 answer_1 = num_ways_to_beat(input_data)
 print(answer_1)
+
+
+answer_2 = num_ways_to_beat_single(input_data)
+print(answer_2)
