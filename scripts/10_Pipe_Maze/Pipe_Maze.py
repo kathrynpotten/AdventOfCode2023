@@ -105,15 +105,24 @@ class Pipe:
         return self.loop_map
 
     def inside_pipe_loop(self):
-        loop_tally = 0
         inside_loop = 0
-        for row in range(self.m):
-            for col in range(self.n):
+        for row in range(1, self.m - 1):
+            loop_tally = 0
+            for col in range(self.n - 1):
                 if self.distance_grid[row][col] != -1:
                     loop_tally += 1
-                elif loop_tally % 2 == 0 and loop_tally != 0:
+                elif (
+                    loop_tally % 2 != 0
+                    and loop_tally != 0
+                    and not (
+                        self.distance_grid[row][col:] == [-1] * (self.n - col)
+                    ).all()
+                    and not (
+                        self.distance_grid[row:, :][:, col] == [-1] * (self.m - row)
+                    ).all()
+                ):
                     inside_loop += 1
-        return inside_loop, loop_tally, self.m * self.n - loop_tally
+        return inside_loop
 
 
 if __name__ == "__main__":
