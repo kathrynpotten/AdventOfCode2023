@@ -8,6 +8,7 @@ class Pipe:
         self.map = input_map.splitlines()
         self.m, self.n = len(self.map), len(self.map[0])
         self.distance_grid = np.full((self.m, self.n), -1)
+        self.direction = np.full((self.m, self.n), ".", dtype=str)
         self.start_loc = None
         self.starting_loc()
         self.pipes = ["|", "-", "L", "J", "7", "F"]
@@ -40,6 +41,7 @@ class Pipe:
             elif opposite_move in self.loop_dict[current_pipe]:
                 current_loc = (row, col)
                 break
+        self.direction[self.start_loc] = self.find_direction(move)
         return current_loc
 
     def possible_move(self, current_loc, previous_loc, possible_moves):
@@ -68,6 +70,16 @@ class Pipe:
         )
         return current_loc, move
 
+    def find_direction(self, move):
+        if move == (0, 1):
+            return "R"
+        elif move == (0, -1):
+            return "L"
+        elif move == (1, 0):
+            return "D"
+        elif move == (-1, 0):
+            return "U"
+
     def calculate_distances(self):
         self.loop_coords = [self.start_loc]
         current_dist = 0
@@ -80,6 +92,7 @@ class Pipe:
             self.distance_grid[current_loc] = current_dist
             current_loc, move = self.make_move(current_loc, previous_loc)
             previous_loc = tuple(x - y for x, y in zip(current_loc, move))
+            self.direction[previous_loc] = self.find_direction(move)
             self.loop_coords.append(current_loc)
 
         self.loop_length = len(self.loop_coords)
@@ -108,6 +121,31 @@ class Pipe:
                     loop_map_row[col] = "."
                     self.loop_map[row] = "".join(pipe for pipe in loop_map_row)
         return self.loop_map
+
+    def inside_pipe_loop(self):
+        inside_loop = 0
+        for row in range(1, self.m - 1):
+            up_tally = 0
+            down_tally = 0
+            for col in range(self.n - 1):
+                if self.direction[row][col] == "U":
+                    up_tally += 1
+                elif self.direction[row][col] == "D":
+                    down_tally += 1
+                # not quite right...
+                elif (
+                    self.distance_grid[row][col] == -1
+                    and up_tally != down_tally
+                    and not (
+                        self.distance_grid[row][col:] == [-1] * (self.n - col)
+                    ).all()
+                    and not (
+                        self.distance_grid[row:, :][:, col] == [-1] * (self.m - row)
+                    ).all()
+                ):
+                    inside_loop += 1
+                    print(row, col)
+        return inside_loop
 
     def area_of_polygon(self):
         x = [coord[0] for coord in self.loop_coords] + [self.loop_coords[0][0]]

@@ -106,6 +106,21 @@ class Test(unittest.TestCase):
         )
         self.assertEqual(result.all(), expected_result.all())
 
+    """def test_direction(self):
+        test_map = pipe.Pipe(simple_test_data)
+        test_map.calculate_distances()
+        result = test_map.direction
+        expected_result = np.array(
+            [
+                [".", ".", ".", ".", "."],
+                [".", "R", "R", "D", "."],
+                [".", "U", ".", "D", "."],
+                [".", "U", "L", "L", "."],
+                [".", ".", ".", ".", "."],
+            ]
+        )
+        self.assertEqual(result.all(), expected_result.all())"""
+
     def test_simple_result(self):
         test_map = pipe.Pipe(simple_test_data)
         test_map.calculate_distances()
@@ -134,7 +149,7 @@ class Test(unittest.TestCase):
         expected_result = [".....", ".S-7.", ".|.|.", ".L-J.", "....."]
         self.assertEqual(result, expected_result)
 
-    def test_inside_loop(self):
+    def test_inside_loop_area(self):
         test_map_1 = pipe.Pipe(part_2_simple_test_data)
         test_map_1.calculate_distances()
         result_1 = test_map_1.points_inside_loop()
@@ -145,7 +160,7 @@ class Test(unittest.TestCase):
         expected_result_2 = 4
         self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))
 
-    def test_inside_loop_complex(self):
+    """def test_inside_loop_area_complex(self):
         test_map_1 = pipe.Pipe(part_2_complex_test_data)
         test_map_1.calculate_distances()
         result_1 = test_map_1.points_inside_loop()
@@ -153,6 +168,30 @@ class Test(unittest.TestCase):
         test_map_2 = pipe.Pipe(part_2_complex_test_data_2)
         test_map_2.calculate_distances()
         result_2 = test_map_2.points_inside_loop()
+        expected_result_2 = 10
+        self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))"""
+
+    def test_inside_loop(self):
+        test_map_1 = pipe.Pipe(part_2_simple_test_data)
+        test_map_1.calculate_distances()
+        result_1 = test_map_1.inside_pipe_loop()
+        expected_result_1 = 4
+        test_map_2 = pipe.Pipe(part_2_simple_test_data_2)
+        test_map_2.calculate_distances()
+        result_2 = test_map_2.inside_pipe_loop()
+        expected_result_2 = 4
+        self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))
+
+    def test_inside_loop_complex(self):
+        test_map_1 = pipe.Pipe(part_2_complex_test_data)
+        test_map_1.calculate_distances()
+        print("complex1")
+        result_1 = test_map_1.inside_pipe_loop()
+        expected_result_1 = 8
+        test_map_2 = pipe.Pipe(part_2_complex_test_data_2)
+        test_map_2.calculate_distances()
+        print("complex2")
+        result_2 = test_map_2.inside_pipe_loop()
         expected_result_2 = 10
         self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))
 
