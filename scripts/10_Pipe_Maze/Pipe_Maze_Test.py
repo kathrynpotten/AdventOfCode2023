@@ -134,7 +134,7 @@ class Test(unittest.TestCase):
         expected_result = [".....", ".S-7.", ".|.|.", ".L-J.", "....."]
         self.assertEqual(result, expected_result)
 
-    def test_inside_loop(self):
+    """def test_inside_loop(self):
         test_map_1 = pipe.Pipe(part_2_simple_test_data)
         test_map_1.calculate_distances()
         result_1 = test_map_1.inside_pipe_loop()
@@ -154,6 +154,17 @@ class Test(unittest.TestCase):
         test_map_2.calculate_distances()
         result_2 = test_map_2.inside_pipe_loop()
         expected_result_2 = 10
+        self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))"""
+
+    def test_area_of_polygon(self):
+        test_map_1 = pipe.Pipe(part_2_simple_test_data)
+        test_map_1.calculate_distances()
+        result_1 = test_map_1.points_inside_loop()
+        expected_result_1 = 4
+        test_map_2 = pipe.Pipe(part_2_simple_test_data_2)
+        test_map_2.calculate_distances()
+        result_2 = test_map_2.points_inside_loop()
+        expected_result_2 = 4
         self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))
 
 

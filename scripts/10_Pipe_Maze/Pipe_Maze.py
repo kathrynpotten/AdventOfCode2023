@@ -69,6 +69,7 @@ class Pipe:
         return current_loc, move
 
     def calculate_distances(self):
+        self.loop_coords = [self.start_loc]
         current_dist = 0
         self.distance_grid[self.start_loc] = current_dist
         current_loc = self.starting_move()
@@ -79,6 +80,10 @@ class Pipe:
             self.distance_grid[current_loc] = current_dist
             current_loc, move = self.make_move(current_loc, previous_loc)
             previous_loc = tuple(x - y for x, y in zip(current_loc, move))
+            self.loop_coords.append(current_loc)
+
+        self.loop_length = len(self.loop_coords)
+        assert self.loop_length == current_dist + 1
 
         return self.distance_grid
 
@@ -123,6 +128,17 @@ class Pipe:
                 ):
                     inside_loop += 1
         return inside_loop
+
+    def area_of_polygon(self):
+        x = [coord[0] for coord in self.loop_coords] + [self.loop_coords[0][0]]
+        y = [coord[1] for coord in self.loop_coords] + [self.loop_coords[0][1]]
+        S1 = np.sum(x * np.roll(y, -1))
+        S2 = np.sum(y * np.roll(x, -1))
+        return 0.5 * np.absolute(S1 - S2)
+
+    def points_inside_loop(self):
+        area = self.area_of_polygon()
+        return area + 1 - int(self.loop_length / 2)
 
 
 if __name__ == "__main__":
