@@ -109,26 +109,6 @@ class Pipe:
                     self.loop_map[row] = "".join(pipe for pipe in loop_map_row)
         return self.loop_map
 
-    def inside_pipe_loop(self):
-        inside_loop = 0
-        for row in range(1, self.m - 1):
-            loop_tally = 0
-            for col in range(self.n - 1):
-                if self.distance_grid[row][col] != -1:
-                    loop_tally += 1
-                elif (
-                    loop_tally % 2 != 0
-                    and loop_tally != 0
-                    and not (
-                        self.distance_grid[row][col:] == [-1] * (self.n - col)
-                    ).all()
-                    and not (
-                        self.distance_grid[row:, :][:, col] == [-1] * (self.m - row)
-                    ).all()
-                ):
-                    inside_loop += 1
-        return inside_loop
-
     def area_of_polygon(self):
         x = [coord[0] for coord in self.loop_coords] + [self.loop_coords[0][0]]
         y = [coord[1] for coord in self.loop_coords] + [self.loop_coords[0][1]]
@@ -138,7 +118,7 @@ class Pipe:
 
     def points_inside_loop(self):
         area = self.area_of_polygon()
-        return area + 1 - int(self.loop_length / 2)
+        return int(math.ceil(area) + 1 - (self.loop_length / 2))
 
 
 if __name__ == "__main__":
@@ -149,3 +129,6 @@ if __name__ == "__main__":
     answer_map.calculate_distances()
     answer_1 = answer_map.furthest_point()
     print(answer_1)
+
+    answer_2 = answer_map.points_inside_loop()
+    print(answer_2)
