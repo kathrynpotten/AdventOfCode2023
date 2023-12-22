@@ -6,7 +6,7 @@ class Pipe:
     def __init__(self, input_map):
         self.input = input_map
         self.map = input_map.splitlines()
-        self.m, self.n = len(self.map[0]), len(self.map)
+        self.m, self.n = len(self.map), len(self.map[0])
         self.distance_grid = np.full((self.m, self.n), -1)
         self.start_loc = None
         self.starting_loc()
@@ -25,7 +25,7 @@ class Pipe:
 
     def starting_loc(self):
         linear_coord = self.input.replace("\n", "").index("S")
-        row, col = divmod(linear_coord, self.m)
+        row, col = divmod(linear_coord, self.n)
         self.start_loc = (row, col)
         return self.start_loc
 
@@ -85,6 +85,35 @@ class Pipe:
     def furthest_point(self):
         length_of_loop = self.distance_grid.max()
         return math.ceil(length_of_loop / 2)
+
+    def not_pipe_loop(self):
+        non_loop_points = []
+        for row in range(self.m):
+            for col in range(self.n):
+                if self.distance_grid[row][col] == -1:
+                    non_loop_points.append((row, col))
+        return non_loop_points
+
+    def create_loop_map(self):
+        self.loop_map = self.map
+        for row in range(self.m):
+            for col in range(self.n):
+                if self.distance_grid[row][col] == -1:
+                    loop_map_row = [pipe for pipe in self.loop_map[row]]
+                    loop_map_row[col] = "."
+                    self.loop_map[row] = "".join(pipe for pipe in loop_map_row)
+        return self.loop_map
+
+    def inside_pipe_loop(self):
+        loop_tally = 0
+        inside_loop = 0
+        for row in range(self.m):
+            for col in range(self.n):
+                if self.distance_grid[row][col] != -1:
+                    loop_tally += 1
+                elif loop_tally % 2 == 0 and loop_tally != 0:
+                    inside_loop += 1
+        return inside_loop, loop_tally, self.m * self.n - loop_tally
 
 
 if __name__ == "__main__":

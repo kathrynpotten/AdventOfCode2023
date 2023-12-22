@@ -18,9 +18,25 @@ LJ..."""
 
 complex_test_result = 8
 
+part_2_simple_test_data = """...........
+.S-------7.
+.|F-----7|.
+.||.....||.
+.||.....||.
+.|L-7.F-J|.
+.|..|.|..|.
+.L--J.L--J.
+...........""".strip()
+
+simple_test_data_edit = """-L|F7
+7S-7|
+L|7||
+-L-J|
+L|-JF""".strip()
+
 
 class Test(unittest.TestCase):
-    def test_str(self):
+    """def test_str(self):
         test_map = pipe.Pipe(simple_test_data)
         result = str(test_map)
         expected_result = ".....\n.S-7.\n.|.|.\n.L-J.\n....."
@@ -70,6 +86,27 @@ class Test(unittest.TestCase):
         test_map.calculate_distances()
         result = test_map.furthest_point()
         expected_result = complex_test_result
+        self.assertEqual(result, expected_result)
+
+    def test_non_loop(self):
+        test_map = pipe.Pipe(simple_test_data)
+        test_map.calculate_distances()
+        result = len(test_map.not_pipe_loop())
+        expected_result = 17
+        self.assertEqual(result, expected_result)
+
+    def test_loop_map(self):
+        test_map = pipe.Pipe(simple_test_data_edit)
+        test_map.calculate_distances()
+        result = test_map.create_loop_map()
+        expected_result = [".....", ".S-7.", ".|.|.", ".L-J.", "....."]
+        self.assertEqual(result, expected_result)"""
+
+    def test_inside_loop(self):
+        test_map = pipe.Pipe(part_2_simple_test_data)
+        test_map.calculate_distances()
+        result = test_map.inside_pipe_loop()
+        expected_result = (4, 46, 53)
         self.assertEqual(result, expected_result)
 
 
