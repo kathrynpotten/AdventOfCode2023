@@ -185,12 +185,10 @@ class Test(unittest.TestCase):
     def test_inside_loop_complex(self):
         test_map_1 = pipe.Pipe(part_2_complex_test_data)
         test_map_1.calculate_distances()
-        print("complex1")
         result_1 = test_map_1.inside_pipe_loop()
         expected_result_1 = 8
         test_map_2 = pipe.Pipe(part_2_complex_test_data_2)
         test_map_2.calculate_distances()
-        print("complex2")
         result_2 = test_map_2.inside_pipe_loop()
         expected_result_2 = 10
         self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))

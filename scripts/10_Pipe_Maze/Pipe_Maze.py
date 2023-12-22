@@ -41,7 +41,7 @@ class Pipe:
             elif opposite_move in self.loop_dict[current_pipe]:
                 current_loc = (row, col)
                 break
-        self.direction[self.start_loc] = self.find_direction(move)
+        self.direction[self.start_loc] = self.find_direction(move, current_pipe)
         return current_loc
 
     def possible_move(self, current_loc, previous_loc, possible_moves):
@@ -68,10 +68,18 @@ class Pipe:
         current_loc, move = self.possible_move(
             current_loc, previous_loc, possible_moves
         )
-        return current_loc, move
+        return current_loc, move, current_pipe
 
-    def find_direction(self, move):
-        if move == (0, 1):
+    def find_direction(self, move, current_pipe):
+        if move == (0, 1) and current_pipe in ["F", "L"]:
+            return "D"
+        elif move == (0, -1) and current_pipe in ["J", "7"]:
+            return "D"
+        elif move == (0, -1) and current_pipe in ["F", "L"]:
+            return "U"
+        elif move == (0, 1) and current_pipe in ["J", "7"]:
+            return "D"
+        elif move == (0, 1):
             return "R"
         elif move == (0, -1):
             return "L"
@@ -90,9 +98,9 @@ class Pipe:
         while current_loc != self.start_loc:
             current_dist += 1
             self.distance_grid[current_loc] = current_dist
-            current_loc, move = self.make_move(current_loc, previous_loc)
+            current_loc, move, current_pipe = self.make_move(current_loc, previous_loc)
             previous_loc = tuple(x - y for x, y in zip(current_loc, move))
-            self.direction[previous_loc] = self.find_direction(move)
+            self.direction[previous_loc] = self.find_direction(move, current_pipe)
             self.loop_coords.append(current_loc)
 
         self.loop_length = len(self.loop_coords)
@@ -132,7 +140,6 @@ class Pipe:
                     up_tally += 1
                 elif self.direction[row][col] == "D":
                     down_tally += 1
-                # not quite right...
                 elif (
                     self.distance_grid[row][col] == -1
                     and up_tally != down_tally
@@ -144,7 +151,6 @@ class Pipe:
                     ).all()
                 ):
                     inside_loop += 1
-                    print(row, col)
         return inside_loop
 
     def area_of_polygon(self):
