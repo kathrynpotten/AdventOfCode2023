@@ -26,7 +26,7 @@ test_data_expanded = """....#........
 .........#...
 #....#......."""
 
-test_result = 4
+test_result = 374
 
 
 class Test(unittest.TestCase):
