@@ -51,4 +51,32 @@ class Observation:
         return self.galaxies, self.galaxy_count
 
     def galaxy_pairs(self):
-        return list(itertools.combinations(range(1, self.galaxy_count + 1), 2))
+        self.pairs = list(itertools.combinations(range(1, self.galaxy_count + 1), 2))
+        return self.pairs
+
+    def shortest_path_sum(self):
+        self.path_lengths = {}
+        for pair in self.pairs:
+            start, finish = pair
+            start_coord, end_coord = self.galaxies[start], self.galaxies[finish]
+            distances = tuple(abs(x - y) for x, y in zip(start_coord, end_coord))
+            path_length = distances[0] + distances[1]
+            self.path_lengths[pair] = path_length
+        return sum(path_length for path_length in self.path_lengths.values())
+
+    def calculate_shortest_paths(self):
+        self.expand()
+        self.position_of_galaxies()
+        self.galaxy_pairs()
+        return self.shortest_path_sum()
+
+
+if __name__ == "__main__":
+    with open(
+        "../../input_data/11_Cosmic_Expansion.txt", "r", encoding="utf-8"
+    ) as file:
+        input_data = file.read().strip()
+
+    answer_obs = Observation(input_data)
+    answer_1 = answer_obs.calculate_shortest_paths()
+    print(answer_1)

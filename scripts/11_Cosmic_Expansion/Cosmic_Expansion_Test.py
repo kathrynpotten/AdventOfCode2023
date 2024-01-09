@@ -76,6 +76,15 @@ class Test(unittest.TestCase):
         expected_result = 36
         self.assertEqual(result, expected_result)
 
+    def test_path_lengths(self):
+        test_observation = cosmic.Observation(test_data)
+        test_observation.expand()
+        test_observation.position_of_galaxies()
+        test_observation.galaxy_pairs()
+        result = test_observation.shortest_path_sum()
+        expected_result = test_result
+        self.assertEqual(result, expected_result)
+
 
 if __name__ == "__main__":
     unittest.main()
