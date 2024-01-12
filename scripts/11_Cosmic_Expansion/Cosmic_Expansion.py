@@ -70,6 +70,48 @@ class Observation:
         self.galaxy_pairs()
         return self.shortest_path_sum()
 
+    def expansion(self):
+        expanded_rows = []
+        for index, line in enumerate(self.scheme):
+            if "#" not in line:
+                expanded_rows.append(index)
+        expanded_cols = []
+        scheme_transpose = list(map(list, zip(*self.scheme)))
+        for index, line in enumerate(scheme_transpose):
+            if "#" not in line:
+                expanded_cols.append(index)
+        return expanded_rows, expanded_cols
+
+    def shortest_path_sum_large(
+        self, expanded_rows, expanded_cols, expansion_num=1000000
+    ):
+        self.path_lengths = {}
+        for pair in self.pairs:
+            start, finish = pair
+            start_coord, end_coord = self.galaxies[start], self.galaxies[finish]
+            distance_y, distance_x = tuple(
+                abs(y - x) for y, x in zip(start_coord, end_coord)
+            )
+            for coord in range(
+                min(start_coord[0], end_coord[0]), max(start_coord[0], end_coord[0])
+            ):
+                if coord in expanded_rows:
+                    distance_y += expansion_num - 1
+            for coord in range(
+                min(start_coord[1], end_coord[1]), max(start_coord[1], end_coord[1])
+            ):
+                if coord in expanded_cols:
+                    distance_x += expansion_num - 1
+            path_length = distance_x + distance_y
+            self.path_lengths[pair] = path_length
+        return sum(path_length for path_length in self.path_lengths.values())
+
+    def calculate_shortest_paths_large(self, expansion_num=1000000):
+        expanded_rows, expanded_cols = self.expansion()
+        self.position_of_galaxies()
+        self.galaxy_pairs()
+        return self.shortest_path_sum_large(expanded_rows, expanded_cols, expansion_num)
+
 
 if __name__ == "__main__":
     with open(
@@ -80,3 +122,8 @@ if __name__ == "__main__":
     answer_obs = Observation(input_data)
     answer_1 = answer_obs.calculate_shortest_paths()
     print(answer_1)
+
+    answer_2 = answer_obs.calculate_shortest_paths_large()
+    print(answer_2)
+
+# too high

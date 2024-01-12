@@ -85,6 +85,26 @@ class Test(unittest.TestCase):
         expected_result = test_result
         self.assertEqual(result, expected_result)
 
+    def test_expansion(self):
+        test_observation = cosmic.Observation(test_data)
+        result = test_observation.expansion()
+        expected_result = ([3, 7], [2, 5, 8])
+        self.assertEqual(result, expected_result)
+
+    def test_path_lengths_large(self):
+        test_observation = cosmic.Observation(test_data)
+        result = test_observation.calculate_shortest_paths_large(2)
+        expected_result = 374
+        self.assertEqual(result, expected_result)
+
+    def test_path_lengths_large_extended(self):
+        test_observation = cosmic.Observation(test_data)
+        result_1 = test_observation.calculate_shortest_paths_large(10)
+        result_2 = test_observation.calculate_shortest_paths_large(100)
+        expected_result_1 = 1030
+        expected_result_2 = 8410
+        self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))
+
 
 if __name__ == "__main__":
     unittest.main()
