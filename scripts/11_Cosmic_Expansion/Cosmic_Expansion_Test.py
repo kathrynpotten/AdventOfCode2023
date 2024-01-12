@@ -98,9 +98,11 @@ class Test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_path_lengths_large_extended(self):
-        test_observation = cosmic.Observation(test_data)
-        result_1 = test_observation.calculate_shortest_paths_large(10)
-        result_2 = test_observation.calculate_shortest_paths_large(100)
+        test_observation_1 = cosmic.Observation(test_data)
+        result_1 = test_observation_1.calculate_shortest_paths_large(10)
+        print("\n")
+        test_observation_2 = cosmic.Observation(test_data)
+        result_2 = test_observation_2.calculate_shortest_paths_large(100)
         expected_result_1 = 1030
         expected_result_2 = 8410
         self.assertEqual((result_1, result_2), (expected_result_1, expected_result_2))

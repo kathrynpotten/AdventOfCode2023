@@ -92,15 +92,19 @@ class Observation:
             distance_y, distance_x = tuple(
                 abs(y - x) for y, x in zip(start_coord, end_coord)
             )
-            for coord in range(
-                min(start_coord[0], end_coord[0]), max(start_coord[0], end_coord[0])
-            ):
-                if coord in expanded_rows:
+            for coord in expanded_rows:
+                if (
+                    min(start_coord[0], end_coord[0])
+                    < coord
+                    < max(start_coord[0], end_coord[0])
+                ):
                     distance_y += expansion_num - 1
-            for coord in range(
-                min(start_coord[1], end_coord[1]), max(start_coord[1], end_coord[1])
-            ):
-                if coord in expanded_cols:
+            for coord in expanded_cols:
+                if (
+                    min(start_coord[1], end_coord[1])
+                    < coord
+                    < max(start_coord[1], end_coord[1])
+                ):
                     distance_x += expansion_num - 1
             path_length = distance_x + distance_y
             self.path_lengths[pair] = path_length
@@ -123,7 +127,6 @@ if __name__ == "__main__":
     answer_1 = answer_obs.calculate_shortest_paths()
     print(answer_1)
 
-    answer_2 = answer_obs.calculate_shortest_paths_large()
+    answer_obs_2 = Observation(input_data)
+    answer_2 = answer_obs_2.calculate_shortest_paths_large()
     print(answer_2)
-
-# too high
