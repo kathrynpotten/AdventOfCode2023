@@ -160,25 +160,39 @@ def possible_configurations(input_row, order):
 
     # this section needs sorting ... we need to compare to the equivalent spot on the input, not the output
     spring_sets = [item for item in spring_row if type(item) == int]
-    print(f"sets are {spring_sets}, original_order is {original_order}")
-    if spring_sets != original_order and spring_sets:
-        print("problem!")
+    # print(f"sets are {spring_sets}, original_order is {original_order}")
+    if spring_sets == original_order:
+        return spring_row, order
+    elif spring_sets != original_order and spring_sets:
+        # print("problem!")
         for spring_set in spring_sets:
             new_input_row = input_row.copy()
-            print(spring_set)
-            print(spring_row)
+            # print(spring_set)
+            # print(spring_row)
             initial_index = spring_row.index(spring_set)
-            print(f"input value is {input_row[initial_index]}")
+            current_space_count = initial_index + sum(
+                [item - 1 for item in spring_row[:initial_index] if type(item) == int]
+            )
+            input_space_count = 0
+            for index, item in enumerate(input_row):
+                if input_space_count == current_space_count:
+                    final_index = index
+                if type(item) == int:
+                    input_space_count += item
+                else:
+                    input_space_count += 1
+            # print(final_index)
+            # print(f"input value is {input_row[final_index]}")
             if (
-                input_row[initial_index] != spring_set
-                and type(input_row[initial_index]) != int
+                input_row[final_index] != spring_set
+                and type(input_row[final_index]) != int
             ):
-                new_input_row[initial_index] = "."
-                print(new_input_row)
+                new_input_row[final_index] = "."
+                # print(new_input_row)
                 spring_row, order = possible_configurations(
                     new_input_row, original_order
                 )
-        print("completed loop")
+        # print("completed loop")
 
     return spring_row, order
 
