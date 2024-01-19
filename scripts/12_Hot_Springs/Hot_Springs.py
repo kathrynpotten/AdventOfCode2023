@@ -28,35 +28,49 @@ def check_possible_spring_placement(total_springs, row, index, grouping, order):
     for new_index, next_item in enumerate(row[index + 1 :]):
         # print(f"total springs is {total_springs}")
         # print(f"current row is {row}, next item is {next_item}")
+        # print(f"index count is {index_count}")
+        if total_springs == grouping:
+            row[index] = grouping
+            #   print(index_count)
+            if index_count + 1 < len(row) and row[index_count + 1] == "?":
+                row[index_count + 1] = "."
+            row = row[: index + 1] + row[index_count + 1 :]
+            order = order[1:]
+            #  print(row)
+            break
         index_count += 1
         if next_item == ".":
+            # print("it's a dot!")
+            # print(new_index)
+            row[index] = "."
             for x in range(new_index):
                 if type(row[index + x]) == str:
                     row[index + x] = "."
+            # print(row)
             break
         elif type(next_item) == int:
             if next_item + total_springs == grouping:
+                #   print("correct Number!")
                 row[index] = grouping
-                if (
-                    index_count + next_item - 1 < len(row)
-                    and row[index_count + next_item - 1] == "?"
-                ):
-                    row[index_count + next_item - 1] = "."
+                #  print(row, index_count)
+                if index_count + 1 < len(row) and row[index_count + 1] == "?":
+                    row[index_count + 1] = "."
                 row = row[: index + 1] + row[index_count + 1 :]
+                #     print(row)
                 order = order[1:]
                 break
             elif next_item + total_springs > grouping:
-                for x in range(new_index + 1):
-                    if type(row[index + x]) == str:
-                        row[index + x] = "."
+                row[index] = "."
+                # for x in range(new_index + 1):
+                #    if type(row[index + x]) == str:
+                #        row[index + x] = "."
                 break
             elif next_item + total_springs < grouping:
                 total_springs += next_item
-                index_count += next_item - 1
         elif next_item == "?":
             total_springs += 1
             if new_index == len(row[index + 1 :]) - 1:
-                # print("we've reached the end!")
+                #    print("we've reached the end!")
                 if total_springs == grouping:
                     row[index] = grouping
                     row = row[: index + 1]
@@ -67,14 +81,22 @@ def check_possible_spring_placement(total_springs, row, index, grouping, order):
 
 def possible_configurations(input_row, order):
     spring_row = input_row.copy()
+    original_order = order.copy()
     for i in range(len(spring_row)):
         if i == len(spring_row):
             break
         else:
             index = i
             item = spring_row[i]
-            # print(index, item)
-            # print(f"current row is {spring_row}")
+            spring_sets = [item for item in spring_row if type(item) == int]
+
+            if spring_sets == original_order:
+                spring_row = [item if item != "?" else "." for item in spring_row]
+                order = []
+                break
+
+            #  print(index, item)
+            #  print(f"current row is {spring_row}")
             if len(order) == 0:
                 for i in range(index, len(spring_row)):
                     if spring_row[i] == "?":
@@ -82,12 +104,15 @@ def possible_configurations(input_row, order):
                 break
             elif item == "?":
                 grouping = order[0]
-                # print(f"grouping is {grouping}")
-                if index + grouping > len(spring_row):
+                #     print(f"grouping is {grouping}")
+                if index + grouping > len(spring_row) and all(
+                    type(item) == str for item in spring_row[index:]
+                ):
                     break
-                elif all(spring_row[index + x] == "?" for x in range(grouping)):
-                    # print("may be possible!")
+                if all(spring_row[index + x] == "?" for x in range(grouping)):
+                    #        print("may be possible!")
                     if index + grouping == len(spring_row):
+                        #           print("we reach the end!")
                         spring_row[index] = grouping
                         spring_row = (
                             spring_row[: index + 1] + spring_row[index + grouping :]
@@ -102,7 +127,7 @@ def possible_configurations(input_row, order):
                         )
                         order = order[1:]
                     else:
-                        # print("integer!")
+                        #          print("integer!")
                         spring_row[index] = "."
 
                 else:
@@ -121,17 +146,39 @@ def possible_configurations(input_row, order):
                     if index + 1 < len(spring_row) and spring_row[index + 1] == "?":
                         spring_row[index + 1] = "."
                 elif item < grouping:
-                    # print("less than grouping")
+                    #    print("less than grouping")
                     if index + 1 >= len(spring_row):
                         break
                     elif spring_row[index + 1] == ".":
                         break
                     elif spring_row[index + 1] == "?":
-                        # print("still possible!")
+                        #       print("still possible!")
                         total_springs = item
                         spring_row, order = check_possible_spring_placement(
                             total_springs, spring_row, index, grouping, order
                         )
+
+    # this section needs sorting ... we need to compare to the equivalent spot on the input, not the output
+    spring_sets = [item for item in spring_row if type(item) == int]
+    print(f"sets are {spring_sets}, original_order is {original_order}")
+    if spring_sets != original_order and spring_sets:
+        print("problem!")
+        for spring_set in spring_sets:
+            new_input_row = input_row.copy()
+            print(spring_set)
+            print(spring_row)
+            initial_index = spring_row.index(spring_set)
+            print(f"input value is {input_row[initial_index]}")
+            if (
+                input_row[initial_index] != spring_set
+                and type(input_row[initial_index]) != int
+            ):
+                new_input_row[initial_index] = "."
+                print(new_input_row)
+                spring_row, order = possible_configurations(
+                    new_input_row, original_order
+                )
+        print("completed loop")
 
     return spring_row, order
 
@@ -142,8 +189,11 @@ def count_possible_configurations(spring_row, order):
     possibilities += test_possible_configurations(
         spring_row, order, possibilities, seen
     )[0]
-    print(possibilities)
-    return possibilities
+    # print(possibilities)
+    error = False
+    if possibilities == 0:
+        error = True
+    return possibilities, error
 
 
 def test_arrangement(input_row, order):
@@ -182,6 +232,7 @@ def test_possible_configurations(spring_row, order, possibilities, seen):
                         for i in range(x):
                             if spring_row[set_index + i] == "?":
                                 input_row[set_index + i] = "."
+                            # print(f"input row is {input_row}")
                             possibilities, seen = test_possible_configurations(
                                 input_row, order, possibilities, seen
                             )
@@ -191,12 +242,20 @@ def test_possible_configurations(spring_row, order, possibilities, seen):
 
 def sum_of_arrangements(input_strings):
     sum = 0
+    errored = []
     for num, springs in enumerate(input_strings):
         spring_string, order = parse_line(springs)
         spring_row = replace_springs(spring_string)
-        print("\n")
-        print(f"{num}: {spring_string}, {spring_row}, {order}")
-        sum += count_possible_configurations(spring_row, order)
+        if num == 65:
+            print(f"{num}: {spring_string}, {spring_row}, {order}")
+
+        # print("\n")
+        # print(f"{num}: {spring_string}, {spring_row}, {order}")
+        possible, error = count_possible_configurations(spring_row, order)
+        sum += possible
+        if error:
+            errored.append(num)
+    print(errored)
     return sum
 
 
@@ -207,4 +266,4 @@ if __name__ == "__main__":
     answer_1 = sum_of_arrangements(input_data)
     print(answer_1)
 
-# too low
+# too low 4429
