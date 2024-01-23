@@ -252,21 +252,39 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
         return possibilities, seen
 
     set_indices = test_arrangement(spring_row, order, original_row)
-    # this needs editing for new set indices
+    # this needs editing for new set indices - select based on "full length"
     if set_indices != False:
         if set_indices not in seen:
             print(set_indices)
             seen.append(set_indices)
             possibilities += 1
+            print(spring_row, original_row, set_indices)
             for set_index in set_indices:
+                # print(set_index)
                 input_row = spring_row.copy()
-                remaining_length = len(spring_row) - set_index
-                if spring_row[set_index] == "?":
-                    input_row[set_index] = "."
+                original_space_count = set_index - sum(
+                    [item - 1 for item in original_row[:set_index] if type(item) == int]
+                )
+                # print(original_space_count)
+                input_space_count = 0
+                final_index = set_index
+                for index, item in enumerate(input_row):
+                    if input_space_count == original_space_count:
+                        final_index = index
+                        break
+                    elif type(item) == int:
+                        input_space_count += item
+                    else:
+                        input_space_count += 1
+                remaining_length = len(spring_row) - final_index
+                # print(final_index)
+                if spring_row[final_index] == "?":
+                    input_row[final_index] = "."
+                    print(input_row)
                     for x in range(1, remaining_length):
                         for i in range(x):
-                            if spring_row[set_index + i] == "?":
-                                input_row[set_index + i] = "."
+                            if spring_row[final_index + i] == "?":
+                                input_row[final_index + i] = "."
                             possibilities, seen = test_possible_configurations(
                                 input_row, order, possibilities, seen, original_row
                             )
@@ -282,6 +300,7 @@ def count_possible_configurations(spring_row, order):
         spring_row, order, possibilities, seen, original_row
     )[0]
     error = False
+    print(f"possible = {possibilities}")
     if possibilities == 0:
         error = True
     return possibilities, error
