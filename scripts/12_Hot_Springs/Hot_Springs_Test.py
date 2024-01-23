@@ -12,7 +12,7 @@ test_data = """???.### 1,1,3
 
 
 class Test(unittest.TestCase):
-    """def test_parse_line(self):
+    def test_parse_line(self):
         test_string = "???.### 1,1,3"
         result = springs.parse_line(test_string)
         expected_result = "???.###", [1, 1, 3]
@@ -195,9 +195,17 @@ class Test(unittest.TestCase):
         ]
         expected_result_1 = [".", ".", ".", 1, ".", ".", 7, ".", ".", 3, ".", "."]
 
+        test_string_2 = "??.#??.###? 1,3"
+        spring_string_2, order_2 = springs.parse_line(test_string_2)
+        spring_row_2 = springs.replace_springs(spring_string_2)
+        result_2 = springs.possible_configurations(spring_row_2, order_2, spring_row_2)[
+            0
+        ]
+        expected_result_2 = [".", ".", ".", 1, ".", ".", ".", 3, "."]
+
         self.assertEqual(
-            (result_1),
-            (expected_result_1),
+            (result_1, result_2),
+            (expected_result_1, expected_result_2),
         )
 
     def test_impossible(self):
@@ -267,7 +275,7 @@ class Test(unittest.TestCase):
         result = springs.possible_configurations(test_row, order, original_row)[0]
         expected_result = [".", ".", 1, ".", 1, ".", ".", ".", 4, ".", 3, ".", 1, "."]
 
-        self.assertEqual(result, expected_result)"""
+        self.assertEqual(result, expected_result)
 
     def test_count_possibilities_2(self):
         test_row, order = [
@@ -292,13 +300,54 @@ class Test(unittest.TestCase):
         ], [1, 1, 1, 2, 7]
         result = springs.count_possible_configurations(test_row, order)[0]
         expected_result = 12
-        self.assertEqual(result, expected_result)
-        # not picking up third 1 in set_indices - why? possibilities missing are [0,2,5,7,9], [0,2,5,7,10], [0,2,5,8, 10]
 
-    """def test_sum_of_arrangements(self):
+        test_string_2 = "??.#??.###? 1,3"
+        spring_string_2, order_2 = springs.parse_line(test_string_2)
+        spring_row_2 = springs.replace_springs(spring_string_2)
+        result_2 = springs.count_possible_configurations(spring_row_2, order_2)[0]
+        expected_result_2 = 1
+
+        test_string_3 = "????#?#????????#?## 1,2,2,9"
+        spring_string_3, order_3 = springs.parse_line(test_string_3)
+        spring_row_3 = springs.replace_springs(spring_string_3)
+        result_3 = springs.count_possible_configurations(spring_row_3, order_3)[0]
+        expected_result_3 = 2
+
+        self.assertEqual(
+            (result, result_2, result_3),
+            (expected_result, expected_result_2, expected_result_3),
+        )
+
+    def test_following_integer_bug(self):
+        test_row, order = [
+            ".",
+            1,
+            ".",
+            ".",
+            1,
+            "?",
+            1,
+            "?",
+            "?",
+            "?",
+            "?",
+            "?",
+            "?",
+            "?",
+            "?",
+            1,
+            "?",
+            2,
+        ], [1, 2, 2, 9]
+        result = springs.count_possible_configurations(test_row, order)[0]
+        expected_result = 0
+
+        self.assertEqual(result, expected_result)
+
+    def test_sum_of_arrangements(self):
         result = springs.sum_of_arrangements(test_data)
         expected_result = 21
-        self.assertEqual(result, expected_result)"""
+        self.assertEqual(result, expected_result)
 
 
 if __name__ == "__main__":
