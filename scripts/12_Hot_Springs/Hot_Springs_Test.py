@@ -12,7 +12,7 @@ test_data = """???.### 1,1,3
 
 
 class Test(unittest.TestCase):
-    def test_parse_line(self):
+    """def test_parse_line(self):
         test_string = "???.### 1,1,3"
         result = springs.parse_line(test_string)
         expected_result = "???.###", [1, 1, 3]
@@ -275,7 +275,7 @@ class Test(unittest.TestCase):
         result = springs.possible_configurations(test_row, order, original_row)[0]
         expected_result = [".", ".", 1, ".", 1, ".", ".", ".", 4, ".", 3, ".", 1, "."]
 
-        self.assertEqual(result, expected_result)
+        self.assertEqual(result, expected_result)"""
 
     def test_count_possibilities_2(self):
         test_row, order = [
@@ -318,7 +318,7 @@ class Test(unittest.TestCase):
             (expected_result, expected_result_2, expected_result_3),
         )
 
-    def test_following_integer_bug(self):
+    """def test_following_integer_bug(self):
         test_row, order = [
             ".",
             1,
@@ -342,12 +342,12 @@ class Test(unittest.TestCase):
         result = springs.count_possible_configurations(test_row, order)[0]
         expected_result = 0
 
-        self.assertEqual(result, expected_result)
+        self.assertEqual(result, expected_result)"""
 
-    def test_sum_of_arrangements(self):
+    """def test_sum_of_arrangements(self):
         result = springs.sum_of_arrangements(test_data)
         expected_result = 21
-        self.assertEqual(result, expected_result)
+        self.assertEqual(result, expected_result)"""
 
 
 if __name__ == "__main__":

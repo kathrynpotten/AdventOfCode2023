@@ -81,8 +81,14 @@ def possible_configurations(input_row, order, original_row):
     possible = False
     spring_row = input_row.copy()
     original_order = order.copy()
+
     for i in range(len(spring_row)):
+        remaining_springs = sum([i for i in spring_row[i:] if type(i) == int])
+        possible_spaces = spring_row[i:].count("?")
+
         if i == len(spring_row):
+            break
+        elif sum(order) > possible_spaces + remaining_springs:
             break
         else:
             index = i
@@ -92,6 +98,7 @@ def possible_configurations(input_row, order, original_row):
                 spring_row = [item if item != "?" else "." for item in spring_row]
                 order = []
                 break
+
             # print(item, index)
             if len(order) == 0:
                 for i in range(index, len(spring_row)):
@@ -197,16 +204,18 @@ def test_arrangement(input_row, order, original_row):
     output_arrangement, order_residual, possible = possible_configurations(
         input_row, order, original_row
     )
-    # print(input_row)
-    # print(f"output is {output_arrangement}")
-    # print(f"original row {original_row}")
+
+    print("\n")
+    print(f"input was {input_row}")
+    print(f"output is {output_arrangement}")
+    print(f"original row {original_row}")
     original_row = ["." if i == "?" else i for i in original_row]
     # print(f"original row {original_row}")
-    if output_arrangement == original_row:
-        # print("we've looped")
+    if output_arrangement == original_row and not possible:
+        print("we've looped")
         return "looped"
-    if not order_residual:
-        # print("output was possible")
+    elif not order_residual:
+        print("output was possible")
         set_indices_dict = {}
         for spring_set in order:
             if spring_set in set_indices_dict:
@@ -230,18 +239,28 @@ def test_arrangement(input_row, order, original_row):
         set_indices = sum(set_indices_dict.values(), [])
         return set_indices
     else:
-        # print("not possible")
+        print("not possible")
         return False
 
 
 def test_possible_configurations(spring_row, order, possibilities, seen, original_row):
-    set_indices = test_arrangement(spring_row, order, original_row)
     loop = False
+    force_break_loop = False
+
+    total_springs = sum([i for i in spring_row if type(i) == int])
+    possible_spaces = spring_row.count("?")
+    print(total_springs, possible_spaces)
+    if total_springs + possible_spaces < sum(order):
+        print("not enough space!")
+        return possibilities, seen, loop
+
+    set_indices = test_arrangement(spring_row, order, original_row)
+
     if set_indices == "looped":
         loop = True
     elif set_indices != False:
         if set_indices not in seen:
-            # print(set_indices)
+            print(set_indices)
             seen.append(set_indices)
             possibilities += 1
             for set_index in set_indices:
@@ -257,8 +276,9 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
                                 input_row, order, possibilities, seen, original_row
                             )
                             if loop:
-                                # print("it's a loop - break")
+                                force_break_loop = True
                                 break
+                        if force_break_loop:
                             break
 
     return possibilities, seen, loop
