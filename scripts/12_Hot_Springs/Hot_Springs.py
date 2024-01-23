@@ -178,6 +178,8 @@ def test_arrangement(input_row, order, original_row):
         input_row, order, original_row
     )
     if not order_residual:
+        print("\n")
+        print(input_row)
         print(output_arrangement)
         set_indices_dict = {}
         for spring_set in order:
