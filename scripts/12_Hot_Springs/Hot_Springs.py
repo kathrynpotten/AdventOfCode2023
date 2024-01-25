@@ -29,10 +29,19 @@ def check_possible_spring_placement(
     index_count = index
     for new_index, next_item in enumerate(row[index + 1 :]):
         index_count += 1
+
         if total_springs == grouping:
+            # print(f"{grouping} could go here!", row)
             if type(row[index_count]) == int:
                 if type(row[index]) == str:
                     row[index] = "."
+                break
+            elif sum(order[1:]) <= sum(
+                [item for item in row[index_count:] if type(item) == int]
+            ) and order[1:] != [
+                item for item in row[index_count:] if type(item) == int
+            ]:
+                # print("can't fit here!")
                 break
             else:
                 row[index] = grouping
@@ -53,14 +62,20 @@ def check_possible_spring_placement(
             break
         elif type(next_item) == int:
             if next_item + total_springs == grouping:
-                row[index] = grouping
-                if index_count + 1 < len(row) and row[index_count + 1] == "?":
-                    row[index_count + 1] = "."
-                row = row[: index + 1] + row[index_count + 1 :]
-                order = order[1:]
-                set_indices_dict[grouping].append(index + index_tally)
-                index_tally += index_count - index
-                break
+                if len(order) == 1 and any(
+                    [type(item) == int for item in row[index_count + 1 :]]
+                ):
+                    # print("can't fit here!")
+                    break
+                else:
+                    row[index] = grouping
+                    if index_count + 1 < len(row) and row[index_count + 1] == "?":
+                        row[index_count + 1] = "."
+                    row = row[: index + 1] + row[index_count + 1 :]
+                    order = order[1:]
+                    set_indices_dict[grouping].append(index + index_tally)
+                    index_tally += index_count - index
+                    break
             elif next_item + total_springs > grouping:
                 row[index] = "."
                 break
@@ -94,6 +109,7 @@ def possible_configurations(input_row, order, original_row):
         current_springs = [i for i in spring_row[:i] if type(i) == int]
         for j in range(len(current_springs)):
             if current_springs[j] != original_order[j]:
+                # print("break!")
                 force_break = True
                 break
         if force_break:
@@ -120,6 +136,7 @@ def possible_configurations(input_row, order, original_row):
                 break
             elif item == "?":
                 grouping = order[0]
+                # print(index, item, grouping)
                 if index + grouping > len(spring_row) and all(
                     type(item) == str for item in spring_row[index:]
                 ):
@@ -134,6 +151,20 @@ def possible_configurations(input_row, order, original_row):
                         set_indices_dict[grouping].append(index + index_tally)
                         index_tally += grouping - 1
                     elif type(spring_row[index + grouping]) != int:
+                        if sum(order[1:]) <= sum(
+                            [
+                                item
+                                for item in spring_row[index + grouping :]
+                                if type(item) == int
+                            ]
+                        ) and order[1:] != [
+                            item
+                            for item in spring_row[index + grouping :]
+                            if type(item) == int
+                        ]:
+                            # print("can't fit here!")
+                            continue
+                        # print(f"{grouping} fits here!")
                         spring_row[index] = grouping
                         if spring_row[index + grouping] == "?":
                             spring_row[index + grouping] = "."
@@ -218,12 +249,10 @@ def possible_configurations(input_row, order, original_row):
                     input_space_count += item
                 else:
                     input_space_count += 1
-            if (
-                original_row[final_index] != spring_set
-                and type(original_row[final_index]) != int
-            ):
+            if type(original_row[final_index]) != int:
                 new_input_row[final_index] = "."
-                final_indices.append(final_index)  # do something with this ...
+                final_indices.append(final_index)
+                # print("problem!", spring_row, new_input_row)
                 (
                     output_row,
                     order,
@@ -277,7 +306,7 @@ def loop_over_set_indices(
         for x in range(remaining_length):
             if spring_row[final_index + x] == "?":
                 input_row[final_index + x] = "."
-                print(input_row, final_index, final_index + x)
+                # print(spring_row, input_row, final_index, final_index + x)
                 possibilities, seen = test_possible_configurations(
                     input_row, order, possibilities, seen, original_row
                 )
@@ -287,7 +316,7 @@ def loop_over_set_indices(
             input_row = spring_row.copy()
             if spring_row[final_index + x] == "?":
                 input_row[final_index + x] = "."
-                print(input_row, final_index, final_index + x)
+                # print(spring_row, input_row, final_index, final_index + x)
                 possibilities, seen = test_possible_configurations(
                     input_row, order, possibilities, seen, original_row
                 )
@@ -315,20 +344,33 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
         seen.append(set_indices)
         possibilities += 1
         if final_indices:
-            temp_row = spring_row.copy()
             for i in final_indices:
-                temp_row[i] = "."
-            print(temp_row)
-            for set_index in set_indices:
-                possibilities, seen = loop_over_set_indices(
-                    temp_row,
-                    spring_row,
-                    set_index,
-                    original_row,
-                    order,
-                    possibilities,
-                    seen,
+                input_row = spring_row.copy()
+                remaining_length = len(spring_row) - i
+                original_space_count = i + sum(
+                    [item - 1 for item in original_row[:i] if type(item) == int]
                 )
+                input_space_count = 0
+                final_index = i
+                for index, item in enumerate(input_row):
+                    if input_space_count == original_space_count:
+                        final_index = index
+                        break
+                    elif type(item) == int:
+                        input_space_count += item
+                    else:
+                        input_space_count += 1
+                remaining_length = len(spring_row) - final_index
+                for x in range(1, remaining_length):
+                    input_row = spring_row.copy()
+                    if spring_row[i + x] == "?":
+                        input_row[i + x] = "."
+                        # print(spring_row, input_row, final_index, final_index + x)
+                        possibilities, seen = test_possible_configurations(
+                            input_row, order, possibilities, seen, original_row
+                        )
+                    else:
+                        break
 
         for set_index in set_indices:
             temp_row = spring_row.copy()
@@ -418,7 +460,7 @@ def sum_of_arrangements(input_strings):
     for num, springs in enumerate(input_strings):
         spring_string, order = parse_line(springs)
         spring_row = replace_springs(spring_string)
-
+        print(f"{num}: {spring_string} {spring_row} {order}")
         possible, error = count_possible_configurations(spring_row, order)
         sum += possible
         if error:
