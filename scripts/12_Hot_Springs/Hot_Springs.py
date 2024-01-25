@@ -41,7 +41,6 @@ def check_possible_spring_placement(
             ) and order[1:] != [
                 item for item in row[index_count:] if type(item) == int
             ]:
-                # print("can't fit here!")
                 break
             else:
                 row[index] = grouping
@@ -62,10 +61,11 @@ def check_possible_spring_placement(
             break
         elif type(next_item) == int:
             if next_item + total_springs == grouping:
-                if len(order) == 1 and any(
-                    [type(item) == int for item in row[index_count + 1 :]]
-                ):
-                    # print("can't fit here!")
+                if sum(order[1:]) <= sum(
+                    [item for item in row[index_count + 1 :] if type(item) == int]
+                ) and order[1:] != [
+                    item for item in row[index_count + 1 :] if type(item) == int
+                ]:
                     break
                 else:
                     row[index] = grouping
@@ -344,7 +344,19 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
         seen.append(set_indices)
         possibilities += 1
         if final_indices:
+            ##temp_row = spring_row.copy()
             for i in final_indices:
+                ##    temp_row[i] = "."
+                ##for set_index in set_indices:
+                ##    possibilities, seen = loop_over_set_indices(
+                ##        temp_row,
+                ##        spring_row,
+                ##        set_index,
+                ##       original_row,
+                ##        order,
+                ##        possibilities,
+                ##        seen,
+                ##    )
                 input_row = spring_row.copy()
                 remaining_length = len(spring_row) - i
                 original_space_count = i + sum(
