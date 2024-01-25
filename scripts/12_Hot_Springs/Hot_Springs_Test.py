@@ -194,7 +194,6 @@ class Test(unittest.TestCase):
             0
         ]
         expected_result_1 = [".", ".", ".", 1, ".", ".", 7, ".", ".", 3, ".", "."]
-        # result_1 = [".", ".", ".", 1, ".", ".", 7, ".", ".", 3, ".", "."]
         test_string_2 = "??.#??.###? 1,3"
         spring_string_2, order_2 = springs.parse_line(test_string_2)
         spring_row_2 = springs.replace_springs(spring_string_2)
@@ -202,7 +201,6 @@ class Test(unittest.TestCase):
             0
         ]
         expected_result_2 = [".", ".", ".", 1, ".", ".", ".", 3, "."]
-        # result_2 = [".", ".", ".", 1, ".", ".", ".", 3, "."]
 
         test_string_3 = ".?.#.????#?#??.?#.? 1,6,2"
         spring_string_3, order_3 = springs.parse_line(test_string_3)
@@ -211,7 +209,6 @@ class Test(unittest.TestCase):
             0
         ]
         expected_result_3 = [".", ".", ".", 1, ".", ".", 6, ".", ".", ".", 2, ".", "."]
-        # result_3 = [".", ".", ".", 1, ".", ".", 6, ".", ".", ".", 2, ".", "."]
         self.assertEqual(
             (result_1, result_2, result_3),
             (expected_result_1, expected_result_2, expected_result_3),
@@ -262,7 +259,6 @@ class Test(unittest.TestCase):
         spring_row_4 = springs.replace_springs(spring_string_4)
         result_4 = springs.count_possible_configurations(spring_row_4, order_4)[0]
         expected_result_4 = 5
-        # result_1, result_3, result_4 = 1, 4, 5
         self.assertEqual(
             (result_1, result_2, result_3, result_4),
             (
@@ -335,7 +331,6 @@ class Test(unittest.TestCase):
         spring_row_3 = springs.replace_springs(spring_string_3)
         result_3 = springs.count_possible_configurations(spring_row_3, order_3)[0]
         expected_result_3 = 2
-        # result_2, result_3 = 1, 2
         self.assertEqual(
             (result, result_2, result_3),
             (expected_result, expected_result_2, expected_result_3),
@@ -354,20 +349,25 @@ class Test(unittest.TestCase):
         result_2 = springs.count_possible_configurations(spring_row_2, order_2)[0]
         expected_result_2 = 2
 
-        # this needs to be fixed ...
-        
-        # print("\n\n")
-        # print("starting test ...")
         test_string_3 = ".????#??#?#????# 1,6,2"
         spring_string_3, order_3 = springs.parse_line(test_string_3)
         spring_row_3 = springs.replace_springs(spring_string_3)
         result_3 = springs.count_possible_configurations(spring_row_3, order_3)[0]
         expected_result_3 = 4
-        # result_3 = 4
+
         self.assertEqual(
             (result_1, result_2, result_3),
             (expected_result_1, expected_result_2, expected_result_3),
         )
+
+    def test_count_possibilities_4(self):
+        test_string_1 = "?#???#?#???#? 1,1,5"
+        spring_string_1, order_1 = springs.parse_line(test_string_1)
+        spring_row_1 = springs.replace_springs(spring_string_1)
+        result_1 = springs.count_possible_configurations(spring_row_1, order_1)[0]
+        expected_result_1 = 1
+
+        self.assertEqual(result_1, expected_result_1)
 
     def test_following_integer_bug(self):
         test_row, order = [
@@ -429,7 +429,6 @@ class Test(unittest.TestCase):
         expected_result = 23
         self.assertEqual(result, expected_result)
 
-    # broken
     def test_input_data_3(self):
         test = [
             "..?##???#????#..#? 3,4,2,1",
@@ -440,7 +439,6 @@ class Test(unittest.TestCase):
         expected_result = 13
         self.assertEqual(result, expected_result)
 
-    # broken
     def test_input_data_4(self):
         test = [
             ".???..???####?? 2,7",
@@ -476,6 +474,43 @@ class Test(unittest.TestCase):
         ]
         result = springs.sum_of_arrangements(test)
         expected_result = 48
+        self.assertEqual(result, expected_result)
+
+    def test_input_data_6(self):
+        test = [
+            "..#??..????????#.?#. 3,2,3,1,1",
+            "?#?????#?? 2,5",
+            "#??#?.???#.? 1,2,1,1",
+            "??#??.?.??? 4,1,2",
+            ".#.#.#??.???#?? 1,1,3,3",
+            "???#??#??.????? 8,4",
+        ]
+        result = springs.sum_of_arrangements(test)
+        expected_result = 25
+        self.assertEqual(result, expected_result)
+
+    def test_input_data_7(self):
+        test = [
+            "??.???#?##?#?.??? 1,8,2",
+            "?????##??? 2,3,1",
+            "?#.?.??##???????#?? 2,5,3",
+            "?#??????.??#?? 8,3",
+            "?#?#??#????.????.? 4,4,1",
+            "???##????# 6,1",
+            "??????????? 2,5",
+            "??????.???.#????##? 3,1,7",
+            "?#..?.??#??#??? 1,1,3,2",
+            "??.#??.###? 1,1,4",
+            "?????#????#?????.?? 8,1,1,1,1",
+        ]
+        result = springs.sum_of_arrangements(test)
+        expected_result = 91
+        self.assertEqual(result, expected_result)
+
+    def test_input_data_8(self):
+        test = ["?#?.#?.????. 1,1,3", "??..??##??. 2,5", "..#????.#?.????? 4,2,2"]
+        result = springs.sum_of_arrangements(test)
+        expected_result = 8
         self.assertEqual(result, expected_result)
 
 
