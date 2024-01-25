@@ -52,9 +52,7 @@ def check_possible_spring_placement(
                     row[index + x] = "."
             break
         elif type(next_item) == int:
-
             if next_item + total_springs == grouping:
-
                 row[index] = grouping
                 if index_count + 1 < len(row) and row[index_count + 1] == "?":
                     row[index_count + 1] = "."
@@ -77,7 +75,6 @@ def check_possible_spring_placement(
                     order = order[1:]
 
                     set_indices_dict[grouping].append(index + index_tally)
-
 
     return row, order, index_tally, set_indices_dict
 
@@ -226,7 +223,7 @@ def possible_configurations(input_row, order, original_row):
                 and type(original_row[final_index]) != int
             ):
                 new_input_row[final_index] = "."
-                final_indices.append(final_index)
+                final_indices.append(final_index)  # do something with this ...
                 (
                     output_row,
                     order,
@@ -258,6 +255,47 @@ def test_arrangement(input_row, order, original_row):
         return False, False
 
 
+def loop_over_set_indices(
+    temp_row, spring_row, set_index, original_row, order, possibilities, seen
+):
+    input_row = temp_row.copy()
+    original_space_count = set_index + sum(
+        [item - 1 for item in original_row[:set_index] if type(item) == int]
+    )
+    input_space_count = 0
+    final_index = set_index
+    for index, item in enumerate(input_row):
+        if input_space_count == original_space_count:
+            final_index = index
+            break
+        elif type(item) == int:
+            input_space_count += item
+        else:
+            input_space_count += 1
+    remaining_length = len(spring_row) - final_index
+    if spring_row[final_index] == "?":
+        for x in range(remaining_length):
+            if spring_row[final_index + x] == "?":
+                input_row[final_index + x] = "."
+                print(input_row, final_index, final_index + x)
+                possibilities, seen = test_possible_configurations(
+                    input_row, order, possibilities, seen, original_row
+                )
+            else:
+                break
+        for x in range(1, remaining_length):
+            input_row = spring_row.copy()
+            if spring_row[final_index + x] == "?":
+                input_row[final_index + x] = "."
+                print(input_row, final_index, final_index + x)
+                possibilities, seen = test_possible_configurations(
+                    input_row, order, possibilities, seen, original_row
+                )
+            else:
+                break
+    return possibilities, seen
+
+
 def test_possible_configurations(spring_row, order, possibilities, seen, original_row):
     total_springs = sum([i for i in spring_row if type(i) == int])
     possible_spaces = spring_row.count("?")
@@ -273,80 +311,36 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
     set_indices, final_indices = test_arrangement(spring_row, order, original_row)
 
     if set_indices != False and set_indices not in seen:
+        print(set_indices, final_indices)
         seen.append(set_indices)
         possibilities += 1
         if final_indices:
             temp_row = spring_row.copy()
             for i in final_indices:
                 temp_row[i] = "."
+            print(temp_row)
             for set_index in set_indices:
-                input_row = temp_row.copy()
-                original_space_count = set_index + sum(
-                    [item - 1 for item in original_row[:set_index] if type(item) == int]
+                possibilities, seen = loop_over_set_indices(
+                    temp_row,
+                    spring_row,
+                    set_index,
+                    original_row,
+                    order,
+                    possibilities,
+                    seen,
                 )
-                input_space_count = 0
-                final_index = set_index
-                for index, item in enumerate(input_row):
-                    if input_space_count == original_space_count:
-                        final_index = index
-                        break
-                    elif type(item) == int:
-                        input_space_count += item
-                    else:
-                        input_space_count += 1
-                remaining_length = len(spring_row) - final_index
-                if spring_row[final_index] == "?":
-                    for x in range(remaining_length):
-                        if spring_row[final_index + x] == "?":
-                            input_row[final_index + x] = "."
-                            possibilities, seen = test_possible_configurations(
-                                input_row, order, possibilities, seen, original_row
-                            )
-                        else:
-                            break
-                    for x in range(1, remaining_length):
-                        input_row = spring_row.copy()
-                        if spring_row[final_index + x] == "?":
-                            input_row[final_index + x] = "."
-                            possibilities, seen = test_possible_configurations(
-                                input_row, order, possibilities, seen, original_row
-                            )
-                        else:
-                            break
+
         for set_index in set_indices:
-            input_row = spring_row.copy()
-            original_space_count = set_index + sum(
-                [item - 1 for item in original_row[:set_index] if type(item) == int]
+            temp_row = spring_row.copy()
+            possibilities, seen = loop_over_set_indices(
+                temp_row,
+                spring_row,
+                set_index,
+                original_row,
+                order,
+                possibilities,
+                seen,
             )
-            input_space_count = 0
-            final_index = set_index
-            for index, item in enumerate(input_row):
-                if input_space_count == original_space_count:
-                    final_index = index
-                    break
-                elif type(item) == int:
-                    input_space_count += item
-                else:
-                    input_space_count += 1
-            remaining_length = len(spring_row) - final_index
-            if spring_row[final_index] == "?":
-                for x in range(remaining_length):
-                    if spring_row[final_index + x] == "?":
-                        input_row[final_index + x] = "."
-                        possibilities, seen = test_possible_configurations(
-                            input_row, order, possibilities, seen, original_row
-                        )
-                    else:
-                        break
-                for x in range(1, remaining_length):
-                    input_row = spring_row.copy()
-                    if spring_row[final_index + x] == "?":
-                        input_row[final_index + x] = "."
-                        possibilities, seen = test_possible_configurations(
-                            input_row, order, possibilities, seen, original_row
-                        )
-                    else:
-                        break
 
     return possibilities, seen
 
