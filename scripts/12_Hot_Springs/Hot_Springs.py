@@ -31,7 +31,6 @@ def check_possible_spring_placement(
         index_count += 1
 
         if total_springs == grouping:
-            # print(f"{grouping} could go here!", row)
             if type(row[index_count]) == int:
                 if type(row[index]) == str:
                     row[index] = "."
@@ -109,7 +108,6 @@ def possible_configurations(input_row, order, original_row):
         current_springs = [i for i in spring_row[:i] if type(i) == int]
         for j in range(len(current_springs)):
             if current_springs[j] != original_order[j]:
-                # print("break!")
                 force_break = True
                 break
         if force_break:
@@ -136,7 +134,6 @@ def possible_configurations(input_row, order, original_row):
                 break
             elif item == "?":
                 grouping = order[0]
-                # print(index, item, grouping)
                 if index + grouping > len(spring_row) and all(
                     type(item) == str for item in spring_row[index:]
                 ):
@@ -162,9 +159,7 @@ def possible_configurations(input_row, order, original_row):
                             for item in spring_row[index + grouping :]
                             if type(item) == int
                         ]:
-                            # print("can't fit here!")
                             continue
-                        # print(f"{grouping} fits here!")
                         spring_row[index] = grouping
                         if spring_row[index + grouping] == "?":
                             spring_row[index + grouping] = "."
@@ -252,7 +247,6 @@ def possible_configurations(input_row, order, original_row):
             if type(original_row[final_index]) != int:
                 new_input_row[final_index] = "."
                 final_indices.append(final_index)
-                # print("problem!", spring_row, new_input_row)
                 (
                     output_row,
                     order,
@@ -306,7 +300,7 @@ def loop_over_set_indices(
         for x in range(remaining_length):
             if spring_row[final_index + x] == "?":
                 input_row[final_index + x] = "."
-                # print(spring_row, input_row, final_index, final_index + x)
+                print(spring_row, input_row, final_index, final_index + x)
                 possibilities, seen = test_possible_configurations(
                     input_row, order, possibilities, seen, original_row
                 )
@@ -316,7 +310,7 @@ def loop_over_set_indices(
             input_row = spring_row.copy()
             if spring_row[final_index + x] == "?":
                 input_row[final_index + x] = "."
-                # print(spring_row, input_row, final_index, final_index + x)
+                print(spring_row, input_row, final_index, final_index + x)
                 possibilities, seen = test_possible_configurations(
                     input_row, order, possibilities, seen, original_row
                 )
@@ -343,45 +337,23 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
         print(set_indices, final_indices)
         seen.append(set_indices)
         possibilities += 1
-        # how has this changed and what has it done to the problem one?
-        ##temp_row = spring_row.copy()
-        for i in final_indices:
-            ##    temp_row[i] = "."
-            ##for set_index in set_indices:
-            ##    possibilities, seen = loop_over_set_indices(
-            ##        temp_row,
-            ##        spring_row,
-            ##        set_index,
-            ##       original_row,
-            ##        order,
-            ##        possibilities,
-            ##        seen,
-            ##    )
-            input_row = spring_row.copy()
-            remaining_length = len(spring_row) - i
-            # original_space_count = i + sum(
-            #     [item - 1 for item in original_row[:i] if type(item) == int]
-            # )
-            # input_space_count = 0
-            # final_index = i
-            # for index, item in enumerate(input_row):
-            #    if input_space_count == original_space_count:
-            #        final_index = index
-            #        break
-            #    elif type(item) == int:
-            #        input_space_count += item
-            #    else:
-            #        input_space_count += 1
-            # remaining_length = len(spring_row) - final_index
-            for x in range(1, remaining_length):
-                input_row = spring_row.copy()
-                if spring_row[i + x] == "?":
-                    input_row[i + x] = "."
 
-                    # print(spring_row, input_row, final_index, final_index + x)
-                    possibilities, seen = test_possible_configurations(
-                        input_row, order, possibilities, seen, original_row
-                    )
+        for i in final_indices:
+            remaining_length = len(spring_row) - i
+
+            for x in range(remaining_length):
+                temp_row = spring_row.copy()
+                if spring_row[i + x] == "?":
+                    temp_row[i + x] = "."
+                    for set_index in set_indices:
+                        possibilities, seen = loop_over_set_indices(
+                            temp_row,
+                            set_index,
+                            original_row,
+                            order,
+                            possibilities,
+                            seen,
+                        )
                 else:
                     break
 
@@ -394,7 +366,6 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
                 possibilities,
                 seen,
             )
-
     return possibilities, seen
 
 
@@ -471,7 +442,7 @@ def sum_of_arrangements(input_strings):
     for num, springs in enumerate(input_strings):
         spring_string, order = parse_line(springs)
         spring_row = replace_springs(spring_string)
-        print(f"{num}: {spring_string} {spring_row} {order}")
+        # print(f"{num}: {spring_string} {spring_row} {order}")
         possible, error = count_possible_configurations(spring_row, order)
         sum += possible
         if error:
@@ -484,7 +455,6 @@ if __name__ == "__main__":
     with open("../../input_data/12_Hot_Springs.txt", "r", encoding="utf-8") as file:
         input_data = file.read().strip().split("\n")
 
-    # print(input_data[24:36])
     answer_1 = sum_of_arrangements(input_data)
     # print(answer_1)
 
