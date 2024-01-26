@@ -230,22 +230,15 @@ def possible_configurations(input_row, order, original_row):
         and (len(spring_sets) > len(original_order) or force_break)
         and spring_sets
     ):
-        # print("problem!", spring_row, spring_sets)
         seen_indices = []
         for spring_set in spring_sets:
             new_input_row = input_row.copy()
             initial_index = spring_row.index(spring_set)
 
-            # print(initial_index, seen_indices)
             if initial_index in seen_indices:
-                # print(spring_row, spring_row[initial_index + 1 :])
                 temp_index = spring_row[initial_index + 1 :].index(spring_set)
                 initial_index = initial_index + 1 + temp_index
-                # print(initial_index, seen_indices, temp_index)
             seen_indices.append(initial_index)
-            #    temp_index = spring_row[initial_index + 1 :].index(spring_set)
-            #    initial_index += temp_index
-            # print(initial_index)
 
             current_space_count = initial_index + sum(
                 [item - 1 for item in spring_row[:initial_index] if type(item) == int]
@@ -261,7 +254,6 @@ def possible_configurations(input_row, order, original_row):
             if type(original_row[final_index]) != int:
                 new_input_row[final_index] = "."
                 final_indices.append(final_index)
-                # print(new_input_row, final_indices)
                 (
                     output_row,
                     order,
@@ -286,8 +278,6 @@ def test_arrangement(input_row, order, original_row):
         set_indices_dict,
         final_indices,
     ) = possible_configurations(input_row, order, original_row)
-
-    # print(output_arrangement, order_residual)
 
     if not order_residual:
         set_indices = sum(set_indices_dict.values(), [])
@@ -319,7 +309,7 @@ def loop_over_set_indices(
         for x in range(remaining_length):
             if spring_row[final_index + x] == "?":
                 input_row[final_index + x] = "."
-                print(spring_row, input_row, final_index, final_index + x)
+                # print(spring_row, input_row, final_index, final_index + x)
                 possibilities, seen = test_possible_configurations(
                     input_row, order, possibilities, seen, original_row
                 )
@@ -329,7 +319,7 @@ def loop_over_set_indices(
             input_row = spring_row.copy()
             if spring_row[final_index + x] == "?":
                 input_row[final_index + x] = "."
-                print(spring_row, input_row, final_index, final_index + x)
+                # print(spring_row, input_row, final_index, final_index + x)
                 possibilities, seen = test_possible_configurations(
                     input_row, order, possibilities, seen, original_row
                 )
@@ -351,10 +341,9 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
         return possibilities, seen
 
     set_indices, final_indices = test_arrangement(spring_row, order, original_row)
-    # print(set_indices, final_indices)
 
     if set_indices != False and set_indices not in seen:
-        print(set_indices, final_indices)
+        # print(set_indices, final_indices)
         seen.append(set_indices)
         possibilities += 1
 
@@ -362,10 +351,10 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
             remaining_length = len(spring_row) - i
 
             for x in range(remaining_length):
-                # print(i, i + x)
                 temp_row = spring_row.copy()
                 if spring_row[i + x] == "?":
                     temp_row[i + x] = "."
+
                     set_index = i + x
                     possibilities, seen = loop_over_set_indices(
                         temp_row,
@@ -376,9 +365,7 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
                         seen,
                     )
 
-                    # print(f"temp_row is {temp_row}")
                     for set_index in set_indices:
-                        # print(f"set_index is {set_index}")
                         possibilities, seen = loop_over_set_indices(
                             temp_row,
                             set_index,
@@ -409,10 +396,7 @@ def count_possible_configurations(spring_row, order):
     possibilities = test_possible_configurations(
         spring_row, order, possibilities, seen, original_row
     )[0]
-    error = False
-    if possibilities == 0:
-        error = True
-    return possibilities, error
+    return possibilities
 
 
 tested = [
@@ -523,17 +507,11 @@ tested = [
 
 def sum_of_arrangements(input_strings):
     sum = 0
-    errored = []
-    for num, springs in enumerate(input_strings):
+    for springs in input_strings:
         spring_string, order = parse_line(springs)
         spring_row = replace_springs(spring_string)
-        print(f"{num}: {spring_string} {spring_row} {order}")
-        possible, error = count_possible_configurations(spring_row, order)
+        possible = count_possible_configurations(spring_row, order)
         sum += possible
-
-        if error:
-            errored.append(num)
-    print(len(errored))
     return sum
 
 
@@ -541,8 +519,8 @@ if __name__ == "__main__":
     with open("../../input_data/12_Hot_Springs.txt", "r", encoding="utf-8") as file:
         input_data = file.read().strip().split("\n")
 
-    # answer_1 = sum_of_arrangements(input_data)
-    # print(answer_1)
+    answer_1 = sum_of_arrangements(input_data)
+    print(answer_1)
 
     # wrong... 5284, 5145, 7660
     # correct : 7753
