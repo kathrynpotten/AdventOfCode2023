@@ -346,7 +346,6 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
     set_indices, final_indices = test_arrangement(spring_row, order, original_row)
 
     if set_indices != False and set_indices not in seen:
-        # print(set_indices, final_indices)
         seen.append(set_indices)
         possibilities += 1
 
@@ -357,16 +356,6 @@ def test_possible_configurations(spring_row, order, possibilities, seen, origina
                 temp_row = spring_row.copy()
                 if spring_row[i + x] == "?":
                     temp_row[i + x] = "."
-
-                    # set_index = i + x
-                    # possibilities, seen = loop_over_set_indices(
-                    #    temp_row,
-                    #    set_index,
-                    #    original_row,
-                    #    order,
-                    #    possibilities,
-                    #    seen,
-                    # )
 
                     for set_index in set_indices:
                         possibilities, seen = loop_over_set_indices(
@@ -448,5 +437,5 @@ if __name__ == "__main__":
     answer_1 = sum_of_arrangements(input_data)
     print(answer_1)
 
-    # 618 incorrect - one fewer than expected. Also gained two extra from somewhere ...
+    # 618 incorrect - one fewer than expected. Also gained two extra from somewhere ...  - 308 and 469
     # correct : 7753
